@@ -84,8 +84,9 @@ public class Attaquechara : MonoBehaviour
     {
         if (currentAttackInstance != null)
         {
-            // Calcule la direction vers la position de la souris
-            Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+          
+// Calcule la direction vers la position de la souris
+Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector2 launchDirection = (mousePosition - (Vector2)attackSpawnPoint.position).normalized;
 
             Rigidbody2D attackRb = currentAttackInstance.GetComponent<Rigidbody2D>();
@@ -96,15 +97,39 @@ public class Attaquechara : MonoBehaviour
 
             // Applique le recul au personnage
             Vector2 recoilDirection = -launchDirection;
-            rb.AddForce(recoilDirection * recoilForces[chargeLevel], ForceMode2D.Impulse);
+            if (rb != null && chargeLevel >= 0 && chargeLevel < recoilForces.Length)
+            {
+                Debug.Log("Recoil Direction: " + recoilDirection);
+                Debug.Log("Recoil Force: " + recoilForces[chargeLevel]);
+                Debug.Log("Current Velocity: " + rb.velocity);
+
+                // Applique la force de recul en utilisant ForceMode2D.Force
+                rb.AddForce(recoilDirection * recoilForces[chargeLevel], ForceMode2D.Force);
+
+                // Vérifiez la vélocité après l'application de la force de recul
+                Debug.Log("Velocity after recoil: " + rb.velocity);
+            }
+            else
+            {
+                Debug.LogError("Invalid recoil force or Rigidbody2D reference.");
+            }
 
             // Réinitialise la charge et restaure les contraintes du Rigidbody2D
             currentChargeTime = 0f;
             chargeLevel = 0;
             currentAttackInstance = null;
-            rb.constraints = originalConstraints;
-            rb.velocity = originalVelocity;
-            rb.angularVelocity = originalAngularVelocity;
+
+            // Restaure les contraintes et les vélocités après un court délai pour permettre au recul de s'appliquer
+            StartCoroutine(RestoreConstraintsAndVelocities());
+
+            IEnumerator RestoreConstraintsAndVelocities()
+            {
+                yield return new WaitForSeconds(0.1f); // Attendre un court délai
+                rb.constraints = originalConstraints;
+                // Ne restaurez pas immédiatement les vélocités originales pour permettre au recul de s'appliquer
+                // rb.velocity = originalVelocity;
+                // rb.angularVelocity = originalAngularVelocity;
+            }
         }
     }
 
@@ -115,7 +140,7 @@ public class Attaquechara : MonoBehaviour
         Vector2 direction = (mousePosition - (Vector2)attackSpawnPoint.position).normalized;
 
         // Calcule la position de l'attaque dans la zone circulaire
-        Vector2 attackPosition = attackSpawnPoint.position+direction * attackRadius;
+        Vector2 attackPosition = (Vector2)attackSpawnPoint.position + direction * attackRadius;
         currentAttackInstance.transform.position = attackPosition;
 
         // Met à jour la rotation de l'attaque pour qu'elle pointe vers la souris
