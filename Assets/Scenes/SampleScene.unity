@@ -769,7 +769,6 @@ MonoBehaviour:
   dashSpeed: 23
   dashDuration: 0.2
   dashCooldown: 0.93
-  recoilDuration: 0.2
 --- !u!50 &1063101979
 Rigidbody2D:
   serializedVersion: 4
@@ -929,16 +928,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d76eaf93758d3645a2986d72e3d9161, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackPrefab: {fileID: 6964992351951411051, guid: 50db4ef5145b26c44b977a661dd07c1f, type: 3}
+  projectilePrefab: {fileID: 6964992351951411051, guid: 50db4ef5145b26c44b977a661dd07c1f, type: 3}
   attackSpawnPoint: {fileID: 1204050323}
-  chargeTime: 1
-  maxChargeTime: 3
-  recoilForces:
-  - 0
-  - 200
-  - 400
-  maxAttackScale: {x: 2, y: 2, z: 2}
-  attackRadius: 3
+  chargeTime: 2
+  targetScale: 2
+  projectileSpeed: 10
 --- !u!1 &1204050322
 GameObject:
   m_ObjectHideFlags: 0

@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7723377708710768214}
   - component: {fileID: 3675963527895387802}
   - component: {fileID: -6445104249014801561}
+  - component: {fileID: -2015059538219554077}
   m_Layer: 0
   m_Name: "boule de t\xE9n\xE8bre"
   m_TagString: Untagged
@@ -161,3 +162,15 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.50000006
+--- !u!114 &-2015059538219554077
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6964992351951411051}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4ae53e4bb3d6584ea491130e66a6195, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

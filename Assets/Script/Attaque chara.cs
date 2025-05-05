@@ -1,119 +1,123 @@
 using System.Collections;
 using UnityEngine;
 
-public class Attaquechara : MonoBehaviour
+public class AttaqueChara : MonoBehaviour
 {
-    public GameObject attackPrefab;
+    [Header("Projectile Settings")]
+    public GameObject projectilePrefab;
     public Transform attackSpawnPoint;
-    public float chargeTime = 1f;
-    public float maxChargeTime = 3f;
-    public float[] recoilForces = { 500f, 1000f, 1500f };
-    public Vector3 maxAttackScale = new Vector3(2f, 2f, 2f);
-    public float attackRadius = 2f;
+    public float chargeTime = 2f;              // Temps pour atteindre la taille maximale
+    public float targetScale = 2f;             // Taille finale
+    public float projectileSpeed = 10f;
 
-    private float currentChargeTime = 0f;
-    private int chargeLevel = 0;
-    private bool isCharging = false;
-    private Rigidbody2D rb;
     private GameObject currentAttackInstance;
-    private Vector2 originalVelocity;
+    private bool isCharging = false;
+    private bool canShoot = false;  // Si l'attaque peut être lancée
+    private float currentChargeTime = 0f;
+    private Rigidbody2D rb;
     private RigidbodyConstraints2D originalConstraints;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        if (rb == null)
-        {
-            Debug.LogError("Rigidbody2D component is missing from the player.");
-        }
     }
 
     void Update()
     {
-        HandleCharging();
-        HandleAttack();
+        HandleInput();
+        UpdateProjectileAim();
+    }
 
-        if (isCharging && currentAttackInstance != null)
+    void HandleInput()
+    {
+        if (Input.GetMouseButtonDown(0))
         {
-            UpdateAttackPositionAndRotation();
+            StartCharging();
+        }
+
+        if (Input.GetMouseButton(0) && isCharging)
+        {
+            ChargeProjectile();
+        }
+
+        if (Input.GetMouseButtonUp(0) && isCharging && canShoot)
+        {
+            LaunchProjectile();
         }
     }
 
-    void HandleCharging()
+    void StartCharging()
     {
-        if (Input.GetMouseButton(1))
-        {
-            if (!isCharging)
-            {
-                isCharging = true;
-                currentChargeTime = 0f;
-                currentAttackInstance = Instantiate(attackPrefab, attackSpawnPoint.position, attackSpawnPoint.rotation);
+        isCharging = true;
+        canShoot = false;  // On désactive le tir avant que le projectile soit complètement chargé
+        currentChargeTime = 0f;
 
-                originalVelocity = rb.velocity;
-                originalConstraints = rb.constraints;
-                rb.constraints = RigidbodyConstraints2D.FreezeAll;
-            }
-            else
-            {
-                currentChargeTime += Time.deltaTime;
-                chargeLevel = Mathf.Min(Mathf.FloorToInt(currentChargeTime / chargeTime), recoilForces.Length - 1);
-                float scaleFactor = Mathf.Clamp01(currentChargeTime / maxChargeTime);
-                currentAttackInstance.transform.localScale = Vector3.Lerp(Vector3.one, maxAttackScale, scaleFactor);
-            }
-        }
-        else if (isCharging)
+        // Freeze la position verticale du joueur pour le garder suspendu en l'air
+        if (rb != null)
         {
-            isCharging = false;
-            LaunchAttack();
+            originalConstraints = rb.constraints;
+            rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
+        }
+
+        currentAttackInstance = Instantiate(projectilePrefab, attackSpawnPoint.position, Quaternion.identity);
+        currentAttackInstance.transform.localScale = Vector3.zero;
+    }
+
+    void ChargeProjectile()
+    {
+        currentChargeTime += Time.deltaTime;
+        float progress = Mathf.Clamp01(currentChargeTime / chargeTime);
+
+        // Met à jour la taille du projectile
+        float scaleValue = Mathf.Lerp(0f, targetScale, progress);
+        currentAttackInstance.transform.localScale = new Vector3(scaleValue, scaleValue, 1f);
+
+        // Si le projectile a atteint la taille cible, on permet de le tirer
+        if (scaleValue >= targetScale)
+        {
+            canShoot = true;
         }
     }
 
-    void HandleAttack()
+    void LaunchProjectile()
     {
-        if (Input.GetMouseButtonUp(1) && chargeLevel > 0)
-        {
-            LaunchAttack();
-        }
-    }
+        isCharging = false;
 
-    void LaunchAttack()
-    {
+        if (rb != null)
+        {
+            rb.constraints = originalConstraints; // Déverrouille le joueur
+        }
+
         if (currentAttackInstance != null)
         {
-            Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector2 launchDirection = (mousePosition - (Vector2)attackSpawnPoint.position).normalized;
+            Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector2 direction = (mousePos - (Vector2)attackSpawnPoint.position).normalized;
 
-            Rigidbody2D attackRb = currentAttackInstance.GetComponent<Rigidbody2D>();
-            if (attackRb != null)
+            Rigidbody2D projRb = currentAttackInstance.GetComponent<Rigidbody2D>();
+            if (projRb != null)
             {
-                attackRb.velocity = launchDirection * 10f;
+                projRb.velocity = direction * projectileSpeed;
             }
 
-            rb.constraints = originalConstraints;
-
-            Vector2 recoilDirection = -launchDirection;
-            if (rb != null && chargeLevel >= 0 && chargeLevel < recoilForces.Length)
-            {
-                rb.AddForce(recoilDirection * recoilForces[chargeLevel], ForceMode2D.Force);
-
-                GetComponent<PlayerMovement>()?.ApplyRecoil(1f);
-            }
-
-            currentChargeTime = 0f;
-            chargeLevel = 0;
+            currentAttackInstance.transform.parent = null;
             currentAttackInstance = null;
         }
+
+        currentChargeTime = 0f;
     }
 
-    void UpdateAttackPositionAndRotation()
+    void UpdateProjectileAim()
     {
-        Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector2 direction = (mousePosition - (Vector2)attackSpawnPoint.position).normalized;
+        if (currentAttackInstance == null)
+            return;
 
-        Vector2 attackPosition = (Vector2)attackSpawnPoint.position + direction * attackRadius;
-        currentAttackInstance.transform.position = attackPosition;
+        Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 direction = (mousePos - (Vector2)attackSpawnPoint.position).normalized;
 
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        currentAttackInstance.transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
+        currentAttackInstance.transform.rotation = Quaternion.Euler(0, 0, angle);
+
+        float distance = 1.5f;
+        currentAttackInstance.transform.position = (Vector2)attackSpawnPoint.position + direction * distance;
     }
 }
