@@ -6,21 +6,24 @@ public class AttaqueChara : MonoBehaviour
     [Header("Projectile Settings")]
     public GameObject projectilePrefab;
     public Transform attackSpawnPoint;
-    public float chargeTime = 2f;              // Temps pour atteindre la taille maximale
-    public float targetScale = 2f;             // Taille finale
+    public float chargeTime = 2f;
+    public float targetScale = 2f;
     public float projectileSpeed = 10f;
+    public float damage = 1f;
+
+    [Header("Cooldown Settings")]
+    public float cooldownTime = 1.5f;
+
+    [Header("Visual Settings")]
+    public Material chargingMaterial;
+    public Material readyMaterial;
 
     private GameObject currentAttackInstance;
     private bool isCharging = false;
-    private bool canShoot = false;  // Si l'attaque peut être lancée
+    private bool canShoot = false;
     private float currentChargeTime = 0f;
-    private Rigidbody2D rb;
-    private RigidbodyConstraints2D originalConstraints;
-
-    void Start()
-    {
-        rb = GetComponent<Rigidbody2D>();
-    }
+    private bool isOnCooldown = false;
+    private bool materialChanged = false;
 
     void Update()
     {
@@ -30,7 +33,7 @@ public class AttaqueChara : MonoBehaviour
 
     void HandleInput()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && !isOnCooldown)
         {
             StartCharging();
         }
@@ -40,52 +43,70 @@ public class AttaqueChara : MonoBehaviour
             ChargeProjectile();
         }
 
-        if (Input.GetMouseButtonUp(0) && isCharging && canShoot)
+        if (Input.GetMouseButtonUp(0) && isCharging)
         {
-            LaunchProjectile();
+            if (canShoot)
+            {
+                LaunchProjectile();
+            }
+            else
+            {
+                DisintegrateProjectile();
+            }
         }
     }
 
     void StartCharging()
     {
         isCharging = true;
-        canShoot = false;  // On désactive le tir avant que le projectile soit complètement chargé
+        canShoot = false;
+        materialChanged = false;
         currentChargeTime = 0f;
-
-        // Freeze la position verticale du joueur pour le garder suspendu en l'air
-        if (rb != null)
-        {
-            originalConstraints = rb.constraints;
-            rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
-        }
 
         currentAttackInstance = Instantiate(projectilePrefab, attackSpawnPoint.position, Quaternion.identity);
         currentAttackInstance.transform.localScale = Vector3.zero;
+
+        // Appliquer le matériau de chargement dès le départ
+        SetProjectileMaterial(chargingMaterial);
     }
 
     void ChargeProjectile()
     {
+        if (currentAttackInstance == null)
+        {
+            isCharging = false;
+            currentChargeTime = 0f;
+            return;
+        }
+
         currentChargeTime += Time.deltaTime;
         float progress = Mathf.Clamp01(currentChargeTime / chargeTime);
-
-        // Met à jour la taille du projectile
         float scaleValue = Mathf.Lerp(0f, targetScale, progress);
         currentAttackInstance.transform.localScale = new Vector3(scaleValue, scaleValue, 1f);
 
-        // Si le projectile a atteint la taille cible, on permet de le tirer
         if (scaleValue >= targetScale)
         {
             canShoot = true;
+
+            // Change le matériau une seule fois
+            if (!materialChanged)
+            {
+                SetProjectileMaterial(readyMaterial);
+                materialChanged = true;
+            }
         }
     }
 
     void LaunchProjectile()
     {
         isCharging = false;
+        isOnCooldown = true;
 
-        if (rb != null)
+        ComportementProjectile projectileScript = currentAttackInstance.GetComponent<ComportementProjectile>();
+        if (projectileScript != null)
         {
-            rb.constraints = originalConstraints; // Déverrouille le joueur
+            projectileScript.damage = damage;
+            projectileScript.isCharging = false;
         }
 
         if (currentAttackInstance != null)
@@ -103,7 +124,30 @@ public class AttaqueChara : MonoBehaviour
             currentAttackInstance = null;
         }
 
+        StartCoroutine(CooldownCoroutine());
         currentChargeTime = 0f;
+    }
+
+    void DisintegrateProjectile()
+    {
+        isCharging = false;
+
+        if (currentAttackInstance != null)
+        {
+            Destroy(currentAttackInstance);
+            currentAttackInstance = null;
+        }
+
+        currentChargeTime = 0f;
+
+        isOnCooldown = true;
+        StartCoroutine(CooldownCoroutine());
+    }
+
+    IEnumerator CooldownCoroutine()
+    {
+        yield return new WaitForSeconds(cooldownTime);
+        isOnCooldown = false;
     }
 
     void UpdateProjectileAim()
@@ -119,5 +163,16 @@ public class AttaqueChara : MonoBehaviour
 
         float distance = 1.5f;
         currentAttackInstance.transform.position = (Vector2)attackSpawnPoint.position + direction * distance;
+    }
+
+    void SetProjectileMaterial(Material mat)
+    {
+        if (currentAttackInstance == null || mat == null) return;
+
+        SpriteRenderer sr = currentAttackInstance.GetComponent<SpriteRenderer>();
+        if (sr != null)
+        {
+            sr.material = mat;
+        }
     }
 }

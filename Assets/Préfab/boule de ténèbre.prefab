@@ -11,9 +11,8 @@ GameObject:
   - component: {fileID: 6808779696032861238}
   - component: {fileID: 4260306089056102103}
   - component: {fileID: 7723377708710768214}
-  - component: {fileID: 3675963527895387802}
   - component: {fileID: -6445104249014801561}
-  - component: {fileID: -2015059538219554077}
+  - component: {fileID: 7695201464586495857}
   m_Layer: 0
   m_Name: "boule de t\xE9n\xE8bre"
   m_TagString: Untagged
@@ -115,18 +114,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &3675963527895387802
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6964992351951411051}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a83027ae588d4fb459250394d5e5d2b8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!58 &-6445104249014801561
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -157,12 +144,12 @@ CircleCollider2D:
     serializedVersion: 2
     m_Bits: 4294967295
   m_IsTrigger: 0
-  m_UsedByEffector: 0
+  m_UsedByEffector: 1
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.50000006
---- !u!114 &-2015059538219554077
+--- !u!114 &7695201464586495857
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -171,6 +158,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 6964992351951411051}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c4ae53e4bb3d6584ea491130e66a6195, type: 3}
+  m_Script: {fileID: 11500000, guid: 7a18823daca62944ab4c59175df4ce2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  damage: 1
+  isCharging: 1

@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: "T\xE9n\xE8bre tourbillonant"
+  m_Name: "Boule de t\xE9n\xE8bre chargement"
   m_Shader: {fileID: -6465566751694194690, guid: 39e49a92fa6fbf6468bd1a499d31aee5, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
