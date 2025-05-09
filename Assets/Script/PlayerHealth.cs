@@ -5,10 +5,11 @@ using UnityEngine;
 public class PlayerHealth : MonoBehaviour
 {
     public int maxHealth = 5;
-    private int currentHealth;
+    public int currentHealth;
     private bool isInvincible = false;
     private SpriteRenderer sr;
     private Rigidbody2D rb;
+    public HealthUI healthUI; // Référence au script HealthUI
 
     public float knockbackForce = 10f;
     public float invincibilityTime = 1.5f;
@@ -19,6 +20,7 @@ public class PlayerHealth : MonoBehaviour
         currentHealth = maxHealth;
         sr = GetComponent<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
+        healthUI.UpdateHearts(); // Met à jour les cœurs au début
     }
 
     public void TakeDamage(int amount, Vector2 sourcePosition)
@@ -27,6 +29,7 @@ public class PlayerHealth : MonoBehaviour
 
         currentHealth -= amount;
         Debug.Log("Player took damage. HP: " + currentHealth);
+        healthUI.UpdateHearts(); // Met à jour les cœurs après avoir subi des dégâts
 
         // Knockback
         Vector2 knockbackDir = (transform.position - (Vector3)sourcePosition).normalized;

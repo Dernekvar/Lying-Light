@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class Enfant : MonoBehaviour
 {
@@ -31,6 +32,14 @@ public class Enfant : MonoBehaviour
         {
             direction *= -1;
             Flip();
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+      if (collision.gameObject.CompareTag("Player"))
+        {
+            print("contact");
         }
     }
 
