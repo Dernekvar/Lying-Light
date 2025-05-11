@@ -19,9 +19,8 @@ public class ComportementProjectile : MonoBehaviour
         }
     }
 
-    void Disintegrate()
+    public void Disintegrate()
     {
-        // Optionnel : effet visuel
         Destroy(gameObject);
     }
 }

@@ -10,6 +10,7 @@ public class PlayerHealth : MonoBehaviour
     private SpriteRenderer sr;
     private Rigidbody2D rb;
     public HealthUI healthUI; // Référence au script HealthUI
+    public int damageOnCollision = 1; // Définir la quantité de dégâts par défaut
 
     public float knockbackForce = 10f;
     public float invincibilityTime = 1.5f;
@@ -29,18 +30,43 @@ public class PlayerHealth : MonoBehaviour
 
         currentHealth -= amount;
         Debug.Log("Player took damage. HP: " + currentHealth);
-        healthUI.UpdateHearts(); // Met à jour les cœurs après avoir subi des dégâts
+        healthUI.UpdateHearts();
 
-        // Knockback
+        CancelChargingProjectiles(); // Annule et supprime les projectiles encore en charge
+
         Vector2 knockbackDir = (transform.position - (Vector3)sourcePosition).normalized;
         rb.AddForce(knockbackDir * knockbackForce, ForceMode2D.Impulse);
 
-        // Invincibilité + clignotement
         StartCoroutine(Invincibility());
 
         if (currentHealth <= 0)
         {
             Die();
+        }
+    }
+
+
+    void CancelChargingProjectiles()
+    {
+        ComportementProjectile[] projectiles = FindObjectsOfType<ComportementProjectile>();
+        foreach (var proj in projectiles)
+        {
+            if (proj.isCharging) // Seuls les projectiles en charge sont concernés
+            {
+                Destroy(proj.gameObject); // Supprime le prefab de la scène
+            }
+        }
+    }
+
+
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        Debug.Log("Collision détectée avec : " + collision.gameObject.name);
+
+        if (collision.CompareTag("Enemy"))
+        {
+            Debug.Log("Dégâts infligés : " + damageOnCollision);
+            TakeDamage(damageOnCollision, collision.transform.position);
         }
     }
 

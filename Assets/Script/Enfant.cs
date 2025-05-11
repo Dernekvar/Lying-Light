@@ -18,7 +18,6 @@ public class Enfant : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         rb.freezeRotation = true;
-        Debug.Log($"{name} - Enfant initialisé, inactif.");
     }
 
     void Update()
@@ -28,7 +27,10 @@ public class Enfant : MonoBehaviour
         rb.velocity = new Vector2(direction * moveSpeed, rb.velocity.y);
 
         Vector2 checkPos = new Vector2(groundCheck.position.x, groundCheck.position.y);
-        if (!Physics2D.Raycast(checkPos, Vector2.down, groundCheckDistance, groundLayer))
+        bool isGrounded = Physics2D.Raycast(checkPos, Vector2.down, groundCheckDistance, groundLayer);
+
+
+        if (!isGrounded)
         {
             direction *= -1;
             Flip();
@@ -37,16 +39,16 @@ public class Enfant : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-      if (collision.gameObject.CompareTag("Player"))
+        if (collision.gameObject.CompareTag("Player"))
         {
-            print("contact");
+            direction *= -1; // Inverser la direction
+            Flip(); // Appliquer l'effet visuel
         }
     }
 
     public void Activer()
     {
         isActive = true;
-        Debug.Log($"{name} - Enfant activé via plateforme.");
     }
 
     void Flip()
