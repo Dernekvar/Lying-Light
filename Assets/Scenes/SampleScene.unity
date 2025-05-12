@@ -1370,7 +1370,7 @@ GameObject:
   - component: {fileID: 1063101981}
   - component: {fileID: 1063101980}
   - component: {fileID: 1063101979}
-  - component: {fileID: 1063101978}
+  - component: {fileID: 1063101986}
   - component: {fileID: 1063101983}
   - component: {fileID: 1063101984}
   - component: {fileID: 1063101985}
@@ -1381,23 +1381,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1063101978
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1063101976}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fb0e944971392464c9194dea7958ad90, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveForce: 10
-  maxSpeed: 5
-  dashForce: 20
-  dashDuration: 0.2
-  dashCooldown: 0.93
 --- !u!50 &1063101979
 Rigidbody2D:
   serializedVersion: 4
@@ -1587,6 +1570,23 @@ MonoBehaviour:
   knockbackForce: 10.5
   invincibilityTime: 1.5
   blinkInterval: 0.22
+--- !u!114 &1063101986
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1063101976}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f99f507fa9491f4da3211b6a154d7e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveForce: 10
+  maxSpeed: 5
+  dashForce: 20
+  dashDuration: 0.2
+  dashCooldown: 1
 --- !u!1 &1077752077
 GameObject:
   m_ObjectHideFlags: 0

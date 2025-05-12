@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class AttaqueChara : MonoBehaviour
 {
@@ -24,36 +25,49 @@ public class AttaqueChara : MonoBehaviour
     private float currentChargeTime = 0f;
     private bool isOnCooldown = false;
     private bool materialChanged = false;
+    private PlayerControls controls;
+
+    void Awake()
+    {
+        controls = new PlayerControls();
+    }
+
+    void OnEnable()
+    {
+        controls.Gameplay.Enable();
+    }
+
+    void OnDisable()
+    {
+        controls.Gameplay.Disable();
+    }
 
     void Update()
     {
-        {
-            Debug.Log("Stick Droit : " + Input.GetAxis("RightStickHorizontal") + ", " + Input.GetAxis("RightStickVertical"));
-            Debug.Log("RT : " + Input.GetAxis("RT"));
-        }
         HandleInput();
         UpdateProjectileAim();
     }
 
     void HandleInput()
     {
-        // Joystick droit
-        Vector2 aimDirection = new Vector2(Input.GetAxis("RightStickHorizontal"), Input.GetAxis("RightStickVertical"));
-        float rtValue = Input.GetAxis("RT"); // Gâchette droite
+        Vector2 aimDirection = controls.Gameplay.Aim.ReadValue<Vector2>();
+
+        // Correction : Vérifier `ChargeAttack` via `WasPressedThisFrame()`
+        bool isChargingAttack = controls.Gameplay.ChargeAttack.WasPressedThisFrame();
 
         bool isAiming = aimDirection.magnitude > 0.1f;
 
-        if (rtValue > 0.1f && !isOnCooldown && isAiming && !isCharging)
+        if (isChargingAttack && !isOnCooldown && isAiming && !isCharging)
         {
             StartCharging();
         }
 
-        if (rtValue > 0.1f && isCharging)
+        if (isChargingAttack && isCharging)
         {
             ChargeProjectile();
         }
 
-        if (rtValue <= 0.1f && isCharging)
+        if (controls.Gameplay.ChargeAttack.WasReleasedThisFrame() && isCharging)
         {
             if (canShoot)
             {
@@ -111,19 +125,10 @@ public class AttaqueChara : MonoBehaviour
 
         if (currentAttackInstance != null)
         {
-            ComportementProjectile projectileScript = currentAttackInstance.GetComponent<ComportementProjectile>();
-            if (projectileScript != null)
-            {
-                projectileScript.damage = damage;
-                projectileScript.isCharging = false;
-            }
-
-            direction.Normalize();
-
             Rigidbody2D projRb = currentAttackInstance.GetComponent<Rigidbody2D>();
             if (projRb != null)
             {
-                projRb.velocity = direction * projectileSpeed;
+                projRb.velocity = direction.normalized * projectileSpeed;
             }
 
             currentAttackInstance.transform.parent = null;
@@ -145,7 +150,6 @@ public class AttaqueChara : MonoBehaviour
         }
 
         currentChargeTime = 0f;
-
         isOnCooldown = true;
         StartCoroutine(CooldownCoroutine());
     }
@@ -158,13 +162,11 @@ public class AttaqueChara : MonoBehaviour
 
     void UpdateProjectileAim()
     {
-        if (currentAttackInstance == null)
-            return;
+        if (currentAttackInstance == null) return;
 
-        Vector2 aimDirection = new Vector2(Input.GetAxis("RightStickHorizontal"), Input.GetAxis("RightStickVertical"));
+        Vector2 aimDirection = controls.Gameplay.Aim.ReadValue<Vector2>();
 
-        if (aimDirection.magnitude < 0.1f)
-            return;
+        if (aimDirection.magnitude < 0.1f) return;
 
         aimDirection.Normalize();
 
@@ -175,6 +177,7 @@ public class AttaqueChara : MonoBehaviour
         currentAttackInstance.transform.position = (Vector2)attackSpawnPoint.position + aimDirection * distance;
     }
 
+    //Ajout de la fonction manquante `SetProjectileMaterial()`
     void SetProjectileMaterial(Material mat)
     {
         if (currentAttackInstance == null || mat == null) return;

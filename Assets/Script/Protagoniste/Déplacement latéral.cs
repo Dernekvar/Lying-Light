@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -14,6 +15,22 @@ public class PlayerMovement : MonoBehaviour
     private bool isDashing = false;
     private float lastDashTime;
     private float moveInput;
+    private PlayerControls controls;
+
+    void Awake()
+    {
+        controls = new PlayerControls();
+    }
+
+    void OnEnable()
+    {
+        controls.Gameplay.Enable();
+    }
+
+    void OnDisable()
+    {
+        controls.Gameplay.Disable();
+    }
 
     void Start()
     {
@@ -23,21 +40,14 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        // Déplacement avec le joystick gauche
-        moveInput = Input.GetAxis("Horizontal");
+        // Déplacement avec Left Stick
+        //moveInput = controls.Gameplay.Move.ReadValue<Vector2>().x;
+        Debug.Log("Move Input: " + controls.Gameplay.Move.ReadValue<Vector2>().x);
 
-        // LT = généralement mappé à "3rd axis" / "Axis 9" selon manette
-        float ltValue = Input.GetAxis("LT"); // Tu dois avoir ce mapping dans Edit > Project Settings > Input Manager
-
-        // Optionnel : Debug de la valeur LT
-        // Debug.Log("LT Value: " + ltValue);
-
-        // Dash uniquement si on est pas déjà en train de dasher et que le cooldown est terminé
+        // Dash avec Left Trigger (L2)
         if (!isDashing && Time.time >= lastDashTime + dashCooldown)
         {
-            bool dashTriggered = Input.GetKeyDown(KeyCode.J) || ltValue > 0.5f;
-
-            if (dashTriggered)
+            if (controls.Gameplay.Dash.WasPressedThisFrame())
             {
                 StartCoroutine(Dash());
             }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class JumpCharacter : MonoBehaviour
 {
@@ -8,6 +9,22 @@ public class JumpCharacter : MonoBehaviour
     private Rigidbody2D rb;
     private bool isGrounded;
     public LayerMask groundLayer;
+    private PlayerControls controls;
+
+    void Awake()
+    {
+        controls = new PlayerControls();
+    }
+
+    void OnEnable()
+    {
+        controls.Gameplay.Enable();
+    }
+
+    void OnDisable()
+    {
+        controls.Gameplay.Disable();
+    }
 
     void Start()
     {
@@ -16,8 +33,8 @@ public class JumpCharacter : MonoBehaviour
 
     void Update()
     {
-        // Vérifie si le joueur est au sol et si la touche "R" est pressée
-        if (isGrounded && Input.GetButtonDown("Jump"))
+        // Saut avec Left Shoulder (L1)
+        if (isGrounded && controls.Gameplay.Jump.WasPressedThisFrame())
         {
             Jump();
         }
@@ -25,7 +42,6 @@ public class JumpCharacter : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        // Vérifie si la collision est avec un objet de la couche "groundLayer"
         if (((1 << collision.gameObject.layer) & groundLayer) != 0)
         {
             isGrounded = true;
@@ -34,7 +50,6 @@ public class JumpCharacter : MonoBehaviour
 
     void OnCollisionExit2D(Collision2D collision)
     {
-        // Vérifie si la collision est avec un objet de la couche "groundLayer"
         if (((1 << collision.gameObject.layer) & groundLayer) != 0)
         {
             isGrounded = false;
@@ -43,7 +58,6 @@ public class JumpCharacter : MonoBehaviour
 
     void Jump()
     {
-        // Applique une force de saut
         rb.velocity = new Vector2(rb.velocity.x, jumpHeight);
     }
 }
