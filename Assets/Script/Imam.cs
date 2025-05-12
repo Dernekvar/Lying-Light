@@ -19,25 +19,38 @@ public class Imam : MonoBehaviour
     public Material chargingMaterial;
     public Material readyMaterial;
 
+    [Header("Vie")]
+    public int maxHealth = 2;
+    private int currentHealth;
+
     private GameObject currentEnergyBall;
     private bool isActive = false;
     private bool canShoot = true;
 
+    private Rigidbody2D rb;
+    private SpriteRenderer sr;
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        sr = GetComponent<SpriteRenderer>();
+        currentHealth = maxHealth;
+    }
+
     public void Activer()
     {
-        if (isActive) return; // Empêche une réactivation multiple
+        if (isActive) return;
         Debug.Log($"{name} - ACTIVATION : L'ennemi reste actif !");
-
         isActive = true;
         StartCoroutine(IncantationLoop());
     }
 
     private IEnumerator IncantationLoop()
     {
-        while (isActive) // Tant que l'ennemi est vivant, il continue d'incanter
+        while (isActive)
         {
             yield return StartCoroutine(Incantation());
-            yield return new WaitForSeconds(cooldownTime); // Attente avant la prochaine attaque
+            yield return new WaitForSeconds(cooldownTime);
         }
     }
 
@@ -48,25 +61,27 @@ public class Imam : MonoBehaviour
         Debug.Log($"{name} - INCANTATION DÉMARRÉE !");
         canShoot = false;
 
-        // Instanciation de la boule d'énergie
         currentEnergyBall = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
         currentEnergyBall.transform.localScale = Vector3.zero;
         SetProjectileMaterial(chargingMaterial);
 
         float currentChargeTime = 0f;
-        while (currentChargeTime < chargeTime)
+        while (currentChargeTime < chargeTime && currentEnergyBall != null)
         {
             currentChargeTime += Time.deltaTime;
             float progress = Mathf.Pow(currentChargeTime / chargeTime, 1.5f);
             float scaleValue = Mathf.Lerp(0f, targetScale, progress);
             currentEnergyBall.transform.localScale = new Vector3(scaleValue, scaleValue, 1f);
-
             yield return null;
         }
 
-        SetProjectileMaterial(readyMaterial);
-        Debug.Log($"{name} - Boule prête, lancement !");
-        TirProjectile();
+        if (currentEnergyBall != null)
+        {
+            SetProjectileMaterial(readyMaterial);
+            Debug.Log($"{name} - Boule prête, lancement !");
+            TirProjectile();
+        }
+
         canShoot = true;
     }
 
@@ -102,12 +117,52 @@ public class Imam : MonoBehaviour
         }
     }
 
-
-    public void Mourir() // Fonction à appeler pour "tuer" l'ennemi
+    public void TakeDamage(int damage)
     {
-        Debug.Log($"{name} - L'ennemi est mort !");
+        currentHealth -= damage;
+        Debug.Log($"{name} - Prend {damage} dégât(s). PV restants : {currentHealth}");
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    private void Die()
+    {
+        Debug.Log($"{name} - L'Imam est mort !");
         isActive = false;
         StopAllCoroutines();
+
+        if (rb != null)
+            rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY;
+
+        StartCoroutine(FadeOutAndDie());
+    }
+
+    private IEnumerator FadeOutAndDie()
+    {
+        float fadeDuration = 1f;
+        float elapsedTime = 0f;
+        Color startColor = sr.color;
+        Color endColor = new Color(startColor.r, startColor.g, startColor.b, 0f);
+
+        while (elapsedTime < fadeDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            sr.color = Color.Lerp(startColor, endColor, elapsedTime / fadeDuration);
+            yield return null;
+        }
+
         Destroy(gameObject);
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("PlayerProjectile"))
+        {
+            TakeDamage(1);
+            Destroy(collision.gameObject);
+        }
     }
 }

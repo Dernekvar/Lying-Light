@@ -11,7 +11,8 @@ GameObject:
   - component: {fileID: 9163496748672323067}
   - component: {fileID: 88830642140554417}
   - component: {fileID: 6303936179189654333}
-  - component: {fileID: 4530356260426043924}
+  - component: {fileID: 1605375796848855327}
+  - component: {fileID: -2006674212614074993}
   m_Layer: 0
   m_Name: "boule de lumi\xE8re"
   m_TagString: Enemy
@@ -113,7 +114,7 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!58 &4530356260426043924
+--- !u!58 &1605375796848855327
 CircleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -148,3 +149,17 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.5
+--- !u!114 &-2006674212614074993
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8713507146439778433}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8f7a414f21841c4ba9a64364f3c666e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 1
+  isCharging: 1

@@ -26,9 +26,16 @@ public class Bouddha : MonoBehaviour
     private bool isIntangible = false;
     private float intangibleDuration = 2f;
 
+    [Header("Vie")]
+    public int maxHealth = 3;
+    private int currentHealth;
+    private SpriteRenderer sr;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        sr = GetComponent<SpriteRenderer>();
+        currentHealth = maxHealth;
         rb.gravityScale = 0;
     }
 
@@ -64,24 +71,24 @@ public class Bouddha : MonoBehaviour
         Rigidbody2D projRb = projectile.GetComponent<Rigidbody2D>();
 
         float currentChargeTime = 0f;
-        while (currentChargeTime < chargeTime)
+        while (currentChargeTime < chargeTime && projectile != null)
         {
             currentChargeTime += Time.deltaTime;
             float progress = Mathf.Clamp01(currentChargeTime / chargeTime);
             float scaleValue = Mathf.Lerp(0f, 2f, progress);
             projectile.transform.localScale = new Vector3(scaleValue, scaleValue, 1f);
-
-            //  MAJ de la position du projectile pour qu'il suive l'ennemi
             projectile.transform.position = firePoint.position;
-
             yield return null;
         }
 
-        GameObject joueur = GameObject.FindGameObjectWithTag("Player");
-        if (joueur != null)
+        if (projectile != null)
         {
-            Vector2 directionTir = (joueur.transform.position - transform.position).normalized;
-            projRb.velocity = directionTir * 5f;
+            GameObject joueur = GameObject.FindGameObjectWithTag("Player");
+            if (joueur != null)
+            {
+                Vector2 directionTir = (joueur.transform.position - transform.position).normalized;
+                projRb.velocity = directionTir * 5f;
+            }
         }
     }
 
@@ -127,7 +134,7 @@ public class Bouddha : MonoBehaviour
 
     private IEnumerator ActiverIntangibilite()
     {
-        if (isIntangible) yield break; // Arrête la coroutine proprement sans erreur
+        if (isIntangible) yield break;
 
         isIntangible = true;
         Collider2D col = GetComponent<Collider2D>();
@@ -173,5 +180,50 @@ public class Bouddha : MonoBehaviour
         {
             collision.GetComponent<PlayerHealth>().TakeDamage(1, transform.position);
         }
+        else if (collision.CompareTag("PlayerProjectile"))
+        {
+            TakeDamage(1);
+            Destroy(collision.gameObject);
+        }
+    }
+
+    public void TakeDamage(int damage)
+    {
+        currentHealth -= damage;
+        Debug.Log($"{name} - Prend {damage} dégât(s). PV restants : {currentHealth}");
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    private void Die()
+    {
+        Debug.Log($"{name} - Bouddha est mort !");
+        isActive = false;
+        StopAllCoroutines();
+
+        if (rb != null)
+            rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY;
+
+        StartCoroutine(FadeOutAndDie());
+    }
+
+    private IEnumerator FadeOutAndDie()
+    {
+        float fadeDuration = 1f;
+        float elapsedTime = 0f;
+        Color startColor = sr.color;
+        Color endColor = new Color(startColor.r, startColor.g, startColor.b, 0f);
+
+        while (elapsedTime < fadeDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            sr.color = Color.Lerp(startColor, endColor, elapsedTime / fadeDuration);
+            yield return null;
+        }
+
+        Destroy(gameObject);
     }
 }

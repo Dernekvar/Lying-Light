@@ -1461,6 +1461,7 @@ MonoBehaviour:
   currentHealth: 0
   healthUI: {fileID: 975377250}
   damageOnCollision: 1
+  playerSpawnPoint: {fileID: 2072114262}
   knockbackForce: 10.5
   invincibilityTime: 1.5
   blinkInterval: 0.22
@@ -1663,6 +1664,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2225412439827918764, guid: bfd7d3b74d5f18c47becc38836ee38da, type: 3}
   m_PrefabInstance: {fileID: 6784407026063480797}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &2072114261
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2072114262}
+  m_Layer: 0
+  m_Name: SpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2072114262
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2072114261}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 26.42, y: 3.38, z: -0.07297982}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &222869730834891344 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 142889442638685660, guid: a63b551a384d4c64c8ee570c146bbf9a, type: 3}
@@ -1748,11 +1780,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5493171192158603439, guid: c73cab1ff3fa0514b8b4203176574a17, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.1324692
+      value: 1.005
       objectReference: {fileID: 0}
     - target: {fileID: 5493171192158603439, guid: c73cab1ff3fa0514b8b4203176574a17, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 11.166531
+      value: 34.1
       objectReference: {fileID: 0}
     - target: {fileID: 5493171192158603439, guid: c73cab1ff3fa0514b8b4203176574a17, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1886,7 +1918,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 142889442638685660, guid: a63b551a384d4c64c8ee570c146bbf9a, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 6.9
+      value: -43.1
       objectReference: {fileID: 0}
     - target: {fileID: 142889442638685660, guid: a63b551a384d4c64c8ee570c146bbf9a, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1981,6 +2013,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Imam Test
       objectReference: {fileID: 0}
+    - target: {fileID: 7516748087508867197, guid: bfd7d3b74d5f18c47becc38836ee38da, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7516748087508867197, guid: bfd7d3b74d5f18c47becc38836ee38da, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.59
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2003,3 +2043,4 @@ SceneRoots:
   - {fileID: 1021732252}
   - {fileID: 468944890}
   - {fileID: 111075092}
+  - {fileID: 2072114262}

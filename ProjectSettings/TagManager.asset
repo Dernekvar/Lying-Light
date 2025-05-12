@@ -7,6 +7,7 @@ TagManager:
   - ActivationPlatform
   - Wall
   - Enemy
+  - PlayerProjectile
   layers:
   - Default
   - TransparentFX
