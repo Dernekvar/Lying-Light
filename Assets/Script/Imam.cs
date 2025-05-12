@@ -23,24 +23,29 @@ public class Imam : MonoBehaviour
     public int maxHealth = 2;
     private int currentHealth;
 
+    [Header("Clignotement Dégâts")]
+    public float flashDuration = 1f;
+    public float flashInterval = 0.1f;
+
     private GameObject currentEnergyBall;
     private bool isActive = false;
     private bool canShoot = true;
 
     private Rigidbody2D rb;
     private SpriteRenderer sr;
+    private Color originalColor;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
         currentHealth = maxHealth;
+        originalColor = sr.color;
     }
 
     public void Activer()
     {
         if (isActive) return;
-        Debug.Log($"{name} - ACTIVATION : L'ennemi reste actif !");
         isActive = true;
         StartCoroutine(IncantationLoop());
     }
@@ -58,7 +63,6 @@ public class Imam : MonoBehaviour
     {
         if (!canShoot) yield break;
 
-        Debug.Log($"{name} - INCANTATION DÉMARRÉE !");
         canShoot = false;
 
         currentEnergyBall = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
@@ -78,7 +82,6 @@ public class Imam : MonoBehaviour
         if (currentEnergyBall != null)
         {
             SetProjectileMaterial(readyMaterial);
-            Debug.Log($"{name} - Boule prête, lancement !");
             TirProjectile();
         }
 
@@ -98,8 +101,6 @@ public class Imam : MonoBehaviour
             {
                 projRb.velocity = directionTir * projectileSpeed;
             }
-
-            Debug.Log($"{name} - Projectile lancé vers {joueur.name} !");
         }
 
         currentEnergyBall.transform.parent = null;
@@ -120,7 +121,7 @@ public class Imam : MonoBehaviour
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
-        Debug.Log($"{name} - Prend {damage} dégât(s). PV restants : {currentHealth}");
+        StartCoroutine(FlashRed());
 
         if (currentHealth <= 0)
         {
@@ -128,14 +129,31 @@ public class Imam : MonoBehaviour
         }
     }
 
+    private IEnumerator FlashRed()
+    {
+        float elapsed = 0f;
+        while (elapsed < flashDuration)
+        {
+            sr.color = Color.red;
+            yield return new WaitForSeconds(flashInterval / 2f);
+            sr.color = originalColor;
+            yield return new WaitForSeconds(flashInterval / 2f);
+            elapsed += flashInterval;
+        }
+
+        sr.color = originalColor;
+    }
+
     private void Die()
     {
-        Debug.Log($"{name} - L'Imam est mort !");
         isActive = false;
         StopAllCoroutines();
 
         if (rb != null)
             rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY;
+
+        if (currentEnergyBall != null)
+            Destroy(currentEnergyBall);
 
         StartCoroutine(FadeOutAndDie());
     }

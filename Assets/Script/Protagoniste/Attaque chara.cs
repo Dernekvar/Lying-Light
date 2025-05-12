@@ -27,27 +27,37 @@ public class AttaqueChara : MonoBehaviour
 
     void Update()
     {
+        {
+            Debug.Log("Stick Droit : " + Input.GetAxis("RightStickHorizontal") + ", " + Input.GetAxis("RightStickVertical"));
+            Debug.Log("RT : " + Input.GetAxis("RT"));
+        }
         HandleInput();
         UpdateProjectileAim();
     }
 
     void HandleInput()
     {
-        if (Input.GetMouseButtonDown(0) && !isOnCooldown)
+        // Joystick droit
+        Vector2 aimDirection = new Vector2(Input.GetAxis("RightStickHorizontal"), Input.GetAxis("RightStickVertical"));
+        float rtValue = Input.GetAxis("RT"); // Gâchette droite
+
+        bool isAiming = aimDirection.magnitude > 0.1f;
+
+        if (rtValue > 0.1f && !isOnCooldown && isAiming && !isCharging)
         {
             StartCharging();
         }
 
-        if (Input.GetMouseButton(0) && isCharging)
+        if (rtValue > 0.1f && isCharging)
         {
             ChargeProjectile();
         }
 
-        if (Input.GetMouseButtonUp(0) && isCharging)
+        if (rtValue <= 0.1f && isCharging)
         {
             if (canShoot)
             {
-                LaunchProjectile();
+                LaunchProjectile(aimDirection);
             }
             else
             {
@@ -66,7 +76,6 @@ public class AttaqueChara : MonoBehaviour
         currentAttackInstance = Instantiate(projectilePrefab, attackSpawnPoint.position, Quaternion.identity);
         currentAttackInstance.transform.localScale = Vector3.zero;
 
-        // Appliquer le matériau de chargement dès le départ
         SetProjectileMaterial(chargingMaterial);
     }
 
@@ -87,8 +96,6 @@ public class AttaqueChara : MonoBehaviour
         if (scaleValue >= targetScale)
         {
             canShoot = true;
-
-            // Change le matériau une seule fois
             if (!materialChanged)
             {
                 SetProjectileMaterial(readyMaterial);
@@ -97,22 +104,21 @@ public class AttaqueChara : MonoBehaviour
         }
     }
 
-    void LaunchProjectile()
+    void LaunchProjectile(Vector2 direction)
     {
         isCharging = false;
         isOnCooldown = true;
 
-        ComportementProjectile projectileScript = currentAttackInstance.GetComponent<ComportementProjectile>();
-        if (projectileScript != null)
-        {
-            projectileScript.damage = damage;
-            projectileScript.isCharging = false;
-        }
-
         if (currentAttackInstance != null)
         {
-            Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector2 direction = (mousePos - (Vector2)attackSpawnPoint.position).normalized;
+            ComportementProjectile projectileScript = currentAttackInstance.GetComponent<ComportementProjectile>();
+            if (projectileScript != null)
+            {
+                projectileScript.damage = damage;
+                projectileScript.isCharging = false;
+            }
+
+            direction.Normalize();
 
             Rigidbody2D projRb = currentAttackInstance.GetComponent<Rigidbody2D>();
             if (projRb != null)
@@ -155,14 +161,18 @@ public class AttaqueChara : MonoBehaviour
         if (currentAttackInstance == null)
             return;
 
-        Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector2 direction = (mousePos - (Vector2)attackSpawnPoint.position).normalized;
+        Vector2 aimDirection = new Vector2(Input.GetAxis("RightStickHorizontal"), Input.GetAxis("RightStickVertical"));
 
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        if (aimDirection.magnitude < 0.1f)
+            return;
+
+        aimDirection.Normalize();
+
+        float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
         currentAttackInstance.transform.rotation = Quaternion.Euler(0, 0, angle);
 
         float distance = 1.5f;
-        currentAttackInstance.transform.position = (Vector2)attackSpawnPoint.position + direction * distance;
+        currentAttackInstance.transform.position = (Vector2)attackSpawnPoint.position + aimDirection * distance;
     }
 
     void SetProjectileMaterial(Material mat)

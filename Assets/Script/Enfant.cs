@@ -23,7 +23,22 @@ public class Enfant : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         rb.freezeRotation = true;
         sr = GetComponent<SpriteRenderer>();
-        currentHealth = maxHealth; // Initialiser la vie de l'ennemi
+        currentHealth = maxHealth;
+
+        // Ignorer les collisions avec les autres objets taggés "Enemy"
+        Collider2D myCollider = GetComponent<Collider2D>();
+        GameObject[] allEnemies = GameObject.FindGameObjectsWithTag("Enemy");
+
+        foreach (GameObject enemy in allEnemies)
+        {
+            if (enemy == this.gameObject) continue;
+
+            Collider2D otherCol = enemy.GetComponent<Collider2D>();
+            if (otherCol != null && myCollider != null)
+            {
+                Physics2D.IgnoreCollision(myCollider, otherCol);
+            }
+        }
     }
 
     void Update()
@@ -66,7 +81,6 @@ public class Enfant : MonoBehaviour
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
-        Debug.Log("Enemy took damage. HP: " + currentHealth);
 
         if (currentHealth <= 0)
         {
@@ -107,8 +121,6 @@ public class Enfant : MonoBehaviour
 
     private void Die()
     {
-        Debug.Log("Enemy is dead.");
-
         // Geler les positions X et Y
         rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY;
 

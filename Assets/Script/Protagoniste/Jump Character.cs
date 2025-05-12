@@ -17,7 +17,7 @@ public class JumpCharacter : MonoBehaviour
     void Update()
     {
         // Vérifie si le joueur est au sol et si la touche "R" est pressée
-        if (isGrounded && Input.GetKeyDown(KeyCode.R))
+        if (isGrounded && Input.GetButtonDown("Jump"))
         {
             Jump();
         }

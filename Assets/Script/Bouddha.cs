@@ -29,14 +29,22 @@ public class Bouddha : MonoBehaviour
     [Header("Vie")]
     public int maxHealth = 3;
     private int currentHealth;
+
+    [Header("Clignotement Dégâts")]
+    public float flashDuration = 1f;
+    public float flashInterval = 0.1f;
+
+    private GameObject currentProjectile;
     private SpriteRenderer sr;
+    private Color originalColor;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        sr = GetComponent<SpriteRenderer>();
-        currentHealth = maxHealth;
         rb.gravityScale = 0;
+        sr = GetComponent<SpriteRenderer>();
+        originalColor = sr.color;
+        currentHealth = maxHealth;
     }
 
     public void Activer()
@@ -65,23 +73,25 @@ public class Bouddha : MonoBehaviour
 
     private IEnumerator Incantation()
     {
-        GameObject projectile = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
-        projectile.transform.localScale = Vector3.zero;
+        currentProjectile = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
+        currentProjectile.transform.localScale = Vector3.zero;
 
-        Rigidbody2D projRb = projectile.GetComponent<Rigidbody2D>();
+        Rigidbody2D projRb = currentProjectile.GetComponent<Rigidbody2D>();
 
         float currentChargeTime = 0f;
-        while (currentChargeTime < chargeTime && projectile != null)
+        while (currentChargeTime < chargeTime && currentProjectile != null)
         {
             currentChargeTime += Time.deltaTime;
             float progress = Mathf.Clamp01(currentChargeTime / chargeTime);
             float scaleValue = Mathf.Lerp(0f, 2f, progress);
-            projectile.transform.localScale = new Vector3(scaleValue, scaleValue, 1f);
-            projectile.transform.position = firePoint.position;
+            currentProjectile.transform.localScale = new Vector3(scaleValue, scaleValue, 1f);
+
+            currentProjectile.transform.position = firePoint.position;
+
             yield return null;
         }
 
-        if (projectile != null)
+        if (currentProjectile != null)
         {
             GameObject joueur = GameObject.FindGameObjectWithTag("Player");
             if (joueur != null)
@@ -89,6 +99,8 @@ public class Bouddha : MonoBehaviour
                 Vector2 directionTir = (joueur.transform.position - transform.position).normalized;
                 projRb.velocity = directionTir * 5f;
             }
+
+            currentProjectile = null;
         }
     }
 
@@ -108,9 +120,7 @@ public class Bouddha : MonoBehaviour
                 foreach (Collider2D col in colliders)
                 {
                     if (col.CompareTag("Enemy") || col.CompareTag("Obstacle"))
-                    {
                         obstacleCount++;
-                    }
                 }
 
                 if (obstacleCount >= 2)
@@ -140,8 +150,6 @@ public class Bouddha : MonoBehaviour
         Collider2D col = GetComponent<Collider2D>();
         if (col != null) col.enabled = false;
 
-        Debug.Log($"{name} - Devient intangible et se réoriente vers le joueur !");
-
         GameObject joueur = GameObject.FindGameObjectWithTag("Player");
         if (joueur != null)
         {
@@ -153,8 +161,6 @@ public class Bouddha : MonoBehaviour
 
         if (col != null) col.enabled = true;
         isIntangible = false;
-
-        Debug.Log($"{name} - Reprise du mouvement normal !");
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -190,7 +196,7 @@ public class Bouddha : MonoBehaviour
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
-        Debug.Log($"{name} - Prend {damage} dégât(s). PV restants : {currentHealth}");
+        StartCoroutine(FlashRed());
 
         if (currentHealth <= 0)
         {
@@ -198,14 +204,31 @@ public class Bouddha : MonoBehaviour
         }
     }
 
+    private IEnumerator FlashRed()
+    {
+        float elapsed = 0f;
+        while (elapsed < flashDuration)
+        {
+            sr.color = Color.red;
+            yield return new WaitForSeconds(flashInterval / 2f);
+            sr.color = originalColor;
+            yield return new WaitForSeconds(flashInterval / 2f);
+            elapsed += flashInterval;
+        }
+
+        sr.color = originalColor;
+    }
+
     private void Die()
     {
-        Debug.Log($"{name} - Bouddha est mort !");
         isActive = false;
         StopAllCoroutines();
 
         if (rb != null)
             rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY;
+
+        if (currentProjectile != null)
+            Destroy(currentProjectile);
 
         StartCoroutine(FadeOutAndDie());
     }

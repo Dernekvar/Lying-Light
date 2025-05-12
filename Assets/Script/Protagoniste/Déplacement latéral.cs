@@ -12,7 +12,6 @@ public class PlayerMovement : MonoBehaviour
 
     private Rigidbody2D rb;
     private bool isDashing = false;
-    private float dashTimer;
     private float lastDashTime;
     private float moveInput;
 
@@ -24,11 +23,24 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        moveInput = Input.GetKey(KeyCode.G) ? 1f : Input.GetKey(KeyCode.D) ? -1f : 0f;
+        // Déplacement avec le joystick gauche
+        moveInput = Input.GetAxis("Horizontal");
 
-        if (Input.GetKeyDown(KeyCode.J) && !isDashing && Time.time >= lastDashTime + dashCooldown)
+        // LT = généralement mappé à "3rd axis" / "Axis 9" selon manette
+        float ltValue = Input.GetAxis("LT"); // Tu dois avoir ce mapping dans Edit > Project Settings > Input Manager
+
+        // Optionnel : Debug de la valeur LT
+        // Debug.Log("LT Value: " + ltValue);
+
+        // Dash uniquement si on est pas déjà en train de dasher et que le cooldown est terminé
+        if (!isDashing && Time.time >= lastDashTime + dashCooldown)
         {
-            StartCoroutine(Dash());
+            bool dashTriggered = Input.GetKeyDown(KeyCode.J) || ltValue > 0.5f;
+
+            if (dashTriggered)
+            {
+                StartCoroutine(Dash());
+            }
         }
     }
 
@@ -37,7 +49,9 @@ public class PlayerMovement : MonoBehaviour
         if (!isDashing)
         {
             if (Mathf.Abs(rb.velocity.x) < maxSpeed)
+            {
                 rb.AddForce(new Vector2(moveInput * moveForce, 0f), ForceMode2D.Force);
+            }
         }
     }
 
@@ -46,7 +60,7 @@ public class PlayerMovement : MonoBehaviour
         isDashing = true;
         lastDashTime = Time.time;
 
-        float dashDirection = moveInput != 0 ? moveInput : transform.localScale.x;
+        float dashDirection = moveInput != 0 ? Mathf.Sign(moveInput) : transform.localScale.x;
         rb.velocity = new Vector2(dashDirection * dashForce, rb.velocity.y);
 
         yield return new WaitForSeconds(dashDuration);
