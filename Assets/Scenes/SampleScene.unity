@@ -1525,10 +1525,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3b578279e79b19429dd43920fff77dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  jumpHeight: 11.53
+  jumpHeight: 5
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
+  _asset: {fileID: -944628639613478452, guid: 44ee98a09e0d0e24faa8fde3ff6c938b, type: 3}
+  inputActions: {fileID: -944628639613478452, guid: 44ee98a09e0d0e24faa8fde3ff6c938b, type: 3}
 --- !u!114 &1063101984
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1550,6 +1552,7 @@ MonoBehaviour:
   cooldownTime: 1.5
   chargingMaterial: {fileID: -876546973899608171, guid: 39e49a92fa6fbf6468bd1a499d31aee5, type: 3}
   readyMaterial: {fileID: -876546973899608171, guid: 7d724c85a272df94b95b1393cb535759, type: 3}
+  inputActions: {fileID: -944628639613478452, guid: 44ee98a09e0d0e24faa8fde3ff6c938b, type: 3}
 --- !u!114 &1063101985
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1587,6 +1590,7 @@ MonoBehaviour:
   dashForce: 20
   dashDuration: 0.2
   dashCooldown: 1
+  inputActions: {fileID: -944628639613478452, guid: 44ee98a09e0d0e24faa8fde3ff6c938b, type: 3}
 --- !u!1 &1077752077
 GameObject:
   m_ObjectHideFlags: 0

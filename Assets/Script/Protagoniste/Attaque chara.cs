@@ -25,82 +25,63 @@ public class AttaqueChara : MonoBehaviour
     private float currentChargeTime = 0f;
     private bool isOnCooldown = false;
     private bool materialChanged = false;
-    private PlayerControls controls;
 
-    void Awake()
-    {
-        controls = new PlayerControls();
-    }
+    [Header("Input System")]
+    public InputActionAsset inputActions;
+    private InputAction aimAction;
+    private InputAction chargeAction;
 
     void OnEnable()
     {
-        controls.Gameplay.Enable();
+        aimAction = inputActions.FindAction("Player/Aim", true);
+        chargeAction = inputActions.FindAction("Player/ChargeAttack", true);
+
+        aimAction.performed += HandleAim;
+        chargeAction.started += HandleAttack;
+        chargeAction.performed += HandleCharge;
+        chargeAction.canceled += HandleRelease;
+
+        aimAction.Enable();
+        chargeAction.Enable();
     }
 
     void OnDisable()
     {
-        controls.Gameplay.Disable();
+        aimAction.performed -= HandleAim;
+        chargeAction.started -= HandleAttack;
+        chargeAction.performed -= HandleCharge;
+        chargeAction.canceled -= HandleRelease;
+
+        aimAction.Disable();
+        chargeAction.Disable();
     }
 
-    void Update()
+    private void HandleAim(InputAction.CallbackContext ctx)
     {
-        HandleInput();
-        UpdateProjectileAim();
+        if (currentAttackInstance == null) return;
+
+        Vector2 aimDirection = ctx.ReadValue<Vector2>();
+        if (aimDirection.magnitude < 0.1f) return;
+
+        aimDirection.Normalize();
+        float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
+        currentAttackInstance.transform.rotation = Quaternion.Euler(0, 0, angle);
+
+        float distance = 1.5f;
+        currentAttackInstance.transform.position = (Vector2)attackSpawnPoint.position + aimDirection * distance;
     }
 
-    void HandleInput()
+    private void HandleAttack(InputAction.CallbackContext ctx)
     {
-        Vector2 aimDirection = controls.Gameplay.Aim.ReadValue<Vector2>();
-
-        // Correction : Vérifier `ChargeAttack` via `WasPressedThisFrame()`
-        bool isChargingAttack = controls.Gameplay.ChargeAttack.WasPressedThisFrame();
-
-        bool isAiming = aimDirection.magnitude > 0.1f;
-
-        if (isChargingAttack && !isOnCooldown && isAiming && !isCharging)
+        if (!isOnCooldown && !isCharging)
         {
             StartCharging();
         }
-
-        if (isChargingAttack && isCharging)
-        {
-            ChargeProjectile();
-        }
-
-        if (controls.Gameplay.ChargeAttack.WasReleasedThisFrame() && isCharging)
-        {
-            if (canShoot)
-            {
-                LaunchProjectile(aimDirection);
-            }
-            else
-            {
-                DisintegrateProjectile();
-            }
-        }
     }
 
-    void StartCharging()
+    private void HandleCharge(InputAction.CallbackContext ctx)
     {
-        isCharging = true;
-        canShoot = false;
-        materialChanged = false;
-        currentChargeTime = 0f;
-
-        currentAttackInstance = Instantiate(projectilePrefab, attackSpawnPoint.position, Quaternion.identity);
-        currentAttackInstance.transform.localScale = Vector3.zero;
-
-        SetProjectileMaterial(chargingMaterial);
-    }
-
-    void ChargeProjectile()
-    {
-        if (currentAttackInstance == null)
-        {
-            isCharging = false;
-            currentChargeTime = 0f;
-            return;
-        }
+        if (currentAttackInstance == null) return;
 
         currentChargeTime += Time.deltaTime;
         float progress = Mathf.Clamp01(currentChargeTime / chargeTime);
@@ -118,7 +99,46 @@ public class AttaqueChara : MonoBehaviour
         }
     }
 
-    void LaunchProjectile(Vector2 direction)
+    private void HandleRelease(InputAction.CallbackContext ctx)
+    {
+        if (isCharging)
+        {
+            if (canShoot)
+            {
+                LaunchProjectile();
+            }
+            else
+            {
+                DisintegrateProjectile();
+            }
+        }
+    }
+
+    private void StartCharging()
+    {
+        isCharging = true;
+        canShoot = false;
+        materialChanged = false;
+        currentChargeTime = 0f;
+
+        currentAttackInstance = Instantiate(projectilePrefab, attackSpawnPoint.position, Quaternion.identity);
+        currentAttackInstance.transform.localScale = Vector3.zero;
+
+        SetProjectileMaterial(chargingMaterial);
+    }
+
+    private void SetProjectileMaterial(Material mat)
+    {
+        if (currentAttackInstance == null || mat == null) return;
+
+        SpriteRenderer sr = currentAttackInstance.GetComponent<SpriteRenderer>();
+        if (sr != null)
+        {
+            sr.material = mat;
+        }
+    }
+
+    private void LaunchProjectile()
     {
         isCharging = false;
         isOnCooldown = true;
@@ -128,7 +148,8 @@ public class AttaqueChara : MonoBehaviour
             Rigidbody2D projRb = currentAttackInstance.GetComponent<Rigidbody2D>();
             if (projRb != null)
             {
-                projRb.velocity = direction.normalized * projectileSpeed;
+                Vector2 aimDirection = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+                projRb.velocity = aimDirection.normalized * projectileSpeed;
             }
 
             currentAttackInstance.transform.parent = null;
@@ -139,7 +160,7 @@ public class AttaqueChara : MonoBehaviour
         currentChargeTime = 0f;
     }
 
-    void DisintegrateProjectile()
+    private void DisintegrateProjectile()
     {
         isCharging = false;
 
@@ -154,38 +175,9 @@ public class AttaqueChara : MonoBehaviour
         StartCoroutine(CooldownCoroutine());
     }
 
-    IEnumerator CooldownCoroutine()
+    private IEnumerator CooldownCoroutine()
     {
         yield return new WaitForSeconds(cooldownTime);
         isOnCooldown = false;
-    }
-
-    void UpdateProjectileAim()
-    {
-        if (currentAttackInstance == null) return;
-
-        Vector2 aimDirection = controls.Gameplay.Aim.ReadValue<Vector2>();
-
-        if (aimDirection.magnitude < 0.1f) return;
-
-        aimDirection.Normalize();
-
-        float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
-        currentAttackInstance.transform.rotation = Quaternion.Euler(0, 0, angle);
-
-        float distance = 1.5f;
-        currentAttackInstance.transform.position = (Vector2)attackSpawnPoint.position + aimDirection * distance;
-    }
-
-    //Ajout de la fonction manquante `SetProjectileMaterial()`
-    void SetProjectileMaterial(Material mat)
-    {
-        if (currentAttackInstance == null || mat == null) return;
-
-        SpriteRenderer sr = currentAttackInstance.GetComponent<SpriteRenderer>();
-        if (sr != null)
-        {
-            sr.material = mat;
-        }
     }
 }

@@ -15,21 +15,42 @@ public class PlayerMovement : MonoBehaviour
     private bool isDashing = false;
     private float lastDashTime;
     private float moveInput;
-    private PlayerControls controls;
 
-    void Awake()
-    {
-        controls = new PlayerControls();
-    }
+    [Header("Input System")]
+    public InputActionAsset inputActions;
+    private InputAction moveAction;
+    private InputAction dashAction;
 
     void OnEnable()
     {
-        controls.Gameplay.Enable();
+        if (inputActions == null)
+        {
+            Debug.LogError(" inputActions est NULL ! Vérifie son assignation dans l'Inspector.");
+            return;
+        }
+        inputActions.Enable();
+        moveAction = inputActions.FindAction("Player/Move", true);
+        dashAction = inputActions.FindAction("Player/Dash", true);
+
+        Debug.Log(" Vérification Move & Dash : " +
+                  "Move Action: " + (moveAction != null ? "OK" : "Manquant") +
+                  "Dash Action: " + (dashAction != null ? "OK" : "Manquant"));
+
+        moveAction.performed += HandleMove;
+        dashAction.started += HandleDash;
+
+        moveAction.Enable();
+        dashAction.Enable();
     }
 
     void OnDisable()
     {
-        controls.Gameplay.Disable();
+        inputActions.Disable();
+        moveAction.performed -= HandleMove;
+        dashAction.started -= HandleDash;
+
+        moveAction.Disable();
+        dashAction.Disable();
     }
 
     void Start()
@@ -38,34 +59,29 @@ public class PlayerMovement : MonoBehaviour
         rb.freezeRotation = true;
     }
 
-    void Update()
+    private void HandleMove(InputAction.CallbackContext ctx)
     {
-        // Déplacement avec Left Stick
-        //moveInput = controls.Gameplay.Move.ReadValue<Vector2>().x;
-        Debug.Log("Move Input: " + controls.Gameplay.Move.ReadValue<Vector2>().x);
+        Vector2 moveInputVector = ctx.ReadValue<Vector2>();
+        moveInput = moveInputVector.x;
 
-        // Dash avec Left Trigger (L2)
-        if (!isDashing && Time.time >= lastDashTime + dashCooldown)
-        {
-            if (controls.Gameplay.Dash.WasPressedThisFrame())
-            {
-                StartCoroutine(Dash());
-            }
-        }
-    }
+        Debug.Log(" Déplacement détecté : " + moveInputVector);
 
-    void FixedUpdate()
-    {
         if (!isDashing)
         {
-            if (Mathf.Abs(rb.velocity.x) < maxSpeed)
-            {
-                rb.AddForce(new Vector2(moveInput * moveForce, 0f), ForceMode2D.Force);
-            }
+            rb.velocity = new Vector2(moveInput*moveForce, rb.velocity.y);
+            //rb.velocity = new Vector2(Mathf.Clamp(rb.velocity.x, -maxSpeed, maxSpeed), rb.velocity.y);
         }
     }
 
-    IEnumerator Dash()
+    private void HandleDash(InputAction.CallbackContext ctx)
+    {
+        if (!isDashing && Time.time >= lastDashTime + dashCooldown)
+        {
+            StartCoroutine(Dash());
+        }
+    }
+
+    private IEnumerator Dash()
     {
         isDashing = true;
         lastDashTime = Time.time;
