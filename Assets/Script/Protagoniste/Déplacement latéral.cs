@@ -5,7 +5,6 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public float moveForce = 10f;
     public float maxSpeed = 5f;
     public float dashForce = 20f;
     public float dashDuration = 0.2f;
@@ -25,18 +24,19 @@ public class PlayerMovement : MonoBehaviour
     {
         if (inputActions == null)
         {
-            Debug.LogError(" inputActions est NULL ! Vérifie son assignation dans l'Inspector.");
+            Debug.LogError("inputActions est NULL ! Vérifie son assignation dans l'Inspector.");
             return;
         }
         inputActions.Enable();
         moveAction = inputActions.FindAction("Player/Move", true);
         dashAction = inputActions.FindAction("Player/Dash", true);
 
-        Debug.Log(" Vérification Move & Dash : " +
+        Debug.Log("Vérification Move & Dash : " +
                   "Move Action: " + (moveAction != null ? "OK" : "Manquant") +
-                  "Dash Action: " + (dashAction != null ? "OK" : "Manquant"));
+                  " Dash Action: " + (dashAction != null ? "OK" : "Manquant"));
 
         moveAction.performed += HandleMove;
+        moveAction.canceled += StopMove;
         dashAction.started += HandleDash;
 
         moveAction.Enable();
@@ -45,8 +45,8 @@ public class PlayerMovement : MonoBehaviour
 
     void OnDisable()
     {
-        inputActions.Disable();
         moveAction.performed -= HandleMove;
+        moveAction.canceled -= StopMove;
         dashAction.started -= HandleDash;
 
         moveAction.Disable();
@@ -59,20 +59,31 @@ public class PlayerMovement : MonoBehaviour
         rb.freezeRotation = true;
     }
 
-    private void HandleMove(InputAction.CallbackContext ctx)
+    void FixedUpdate()
     {
-        Vector2 moveInputVector = ctx.ReadValue<Vector2>();
-        moveInput = moveInputVector.x;
-
-        Debug.Log(" Déplacement détecté : " + moveInputVector);
-
         if (!isDashing)
         {
-            rb.velocity = new Vector2(moveInput*moveForce, rb.velocity.y);
-            //rb.velocity = new Vector2(Mathf.Clamp(rb.velocity.x, -maxSpeed, maxSpeed), rb.velocity.y);
+            rb.velocity = new Vector2(moveInput * maxSpeed, rb.velocity.y);
         }
     }
 
+    private void HandleMove(InputAction.CallbackContext ctx)
+    {
+        moveInput = ctx.ReadValue<float>(); // Lecture de l'axe (-1 pour gauche, 1 pour droite)
+
+        Debug.Log("Valeur de moveInput : " + moveInput);
+
+        
+    }
+
+    private void StopMove(InputAction.CallbackContext ctx)
+    {
+        moveInput = 0; // On remet l'input à zéro
+        if (!isDashing)
+        {
+            rb.velocity = new Vector2(0, rb.velocity.y); // Stoppe le mouvement horizontal
+        }
+    }
     private void HandleDash(InputAction.CallbackContext ctx)
     {
         if (!isDashing && Time.time >= lastDashTime + dashCooldown)

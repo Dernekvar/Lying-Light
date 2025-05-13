@@ -19,6 +19,9 @@ public class AttaqueChara : MonoBehaviour
     public Material chargingMaterial;
     public Material readyMaterial;
 
+    [Header("Orbit Settings")]
+    public float orbitRadius = 1.5f; // Distance fixe autour du joueur
+
     private GameObject currentAttackInstance;
     private bool isCharging = false;
     private bool canShoot = false;
@@ -26,95 +29,78 @@ public class AttaqueChara : MonoBehaviour
     private bool isOnCooldown = false;
     private bool materialChanged = false;
 
-    [Header("Input System")]
-    public InputActionAsset inputActions;
-    private InputAction aimAction;
-    private InputAction chargeAction;
-
-    void OnEnable()
+    void Update()
     {
-        aimAction = inputActions.FindAction("Player/Aim", true);
-        chargeAction = inputActions.FindAction("Player/ChargeAttack", true);
+        HandleMouseInput();
+        UpdateAttackSpawnPoint();
 
-        aimAction.performed += HandleAim;
-        chargeAction.started += HandleAttack;
-        chargeAction.performed += HandleCharge;
-        chargeAction.canceled += HandleRelease;
-
-        aimAction.Enable();
-        chargeAction.Enable();
+        // Si une attaque est en charge, la position de l'attaque doit suivre le spawn point
+        if (isCharging && currentAttackInstance != null)
+        {
+            currentAttackInstance.transform.position = attackSpawnPoint.position;
+        }
     }
 
-    void OnDisable()
+    void HandleMouseInput()
     {
-        aimAction.performed -= HandleAim;
-        chargeAction.started -= HandleAttack;
-        chargeAction.performed -= HandleCharge;
-        chargeAction.canceled -= HandleRelease;
-
-        aimAction.Disable();
-        chargeAction.Disable();
-    }
-
-    private void HandleAim(InputAction.CallbackContext ctx)
-    {
-        if (currentAttackInstance == null) return;
-
-        Vector2 aimDirection = ctx.ReadValue<Vector2>();
-        if (aimDirection.magnitude < 0.1f) return;
-
-        aimDirection.Normalize();
-        float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
-        currentAttackInstance.transform.rotation = Quaternion.Euler(0, 0, angle);
-
-        float distance = 1.5f;
-        currentAttackInstance.transform.position = (Vector2)attackSpawnPoint.position + aimDirection * distance;
-    }
-
-    private void HandleAttack(InputAction.CallbackContext ctx)
-    {
-        if (!isOnCooldown && !isCharging)
+        if (Input.GetMouseButtonDown(0) && !isOnCooldown && !isCharging)
         {
             StartCharging();
         }
-    }
 
-    private void HandleCharge(InputAction.CallbackContext ctx)
-    {
-        if (currentAttackInstance == null) return;
-
-        currentChargeTime += Time.deltaTime;
-        float progress = Mathf.Clamp01(currentChargeTime / chargeTime);
-        float scaleValue = Mathf.Lerp(0f, targetScale, progress);
-        currentAttackInstance.transform.localScale = new Vector3(scaleValue, scaleValue, 1f);
-
-        if (scaleValue >= targetScale)
+        if (Input.GetMouseButton(0) && isCharging && currentAttackInstance != null)
         {
-            canShoot = true;
-            if (!materialChanged)
+            currentChargeTime += Time.deltaTime;
+            float progress = Mathf.Clamp01(currentChargeTime / chargeTime);
+            float scaleValue = Mathf.Lerp(0f, targetScale, progress);
+            currentAttackInstance.transform.localScale = new Vector3(scaleValue, scaleValue, 1f);
+
+            if (scaleValue >= targetScale)
             {
-                SetProjectileMaterial(readyMaterial);
-                materialChanged = true;
+                canShoot = true;
+                if (!materialChanged)
+                {
+                    SetProjectileMaterial(readyMaterial);
+                    materialChanged = true;
+                }
             }
         }
-    }
 
-    private void HandleRelease(InputAction.CallbackContext ctx)
-    {
-        if (isCharging)
+        if (Input.GetMouseButtonUp(0) && isCharging)
         {
             if (canShoot)
-            {
                 LaunchProjectile();
-            }
             else
-            {
                 DisintegrateProjectile();
-            }
         }
     }
 
-    private void StartCharging()
+    void UpdateAttackSpawnPoint()
+    {
+        // Obtenir la position de la souris en monde
+        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(
+            new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane)
+        );
+
+        Vector2 direction = (mouseWorldPos - transform.position);
+
+        if (direction.sqrMagnitude < 0.001f)
+        {
+            direction = Vector2.right; // Direction par défaut si la souris est trop proche
+        }
+        else
+        {
+            direction.Normalize(); // Sinon on normalise normalement
+        }
+
+        attackSpawnPoint.position = transform.position + (Vector3)(direction * orbitRadius);
+
+        // Le faire pointer vers la souris
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        attackSpawnPoint.rotation = Quaternion.Euler(0f, 0f, angle);
+    }
+
+    void StartCharging()
     {
         isCharging = true;
         canShoot = false;
@@ -127,7 +113,7 @@ public class AttaqueChara : MonoBehaviour
         SetProjectileMaterial(chargingMaterial);
     }
 
-    private void SetProjectileMaterial(Material mat)
+    void SetProjectileMaterial(Material mat)
     {
         if (currentAttackInstance == null || mat == null) return;
 
@@ -138,7 +124,7 @@ public class AttaqueChara : MonoBehaviour
         }
     }
 
-    private void LaunchProjectile()
+    void LaunchProjectile()
     {
         isCharging = false;
         isOnCooldown = true;
@@ -148,8 +134,8 @@ public class AttaqueChara : MonoBehaviour
             Rigidbody2D projRb = currentAttackInstance.GetComponent<Rigidbody2D>();
             if (projRb != null)
             {
-                Vector2 aimDirection = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-                projRb.velocity = aimDirection.normalized * projectileSpeed;
+                Vector2 aimDirection = (Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position).normalized;
+                projRb.velocity = aimDirection * projectileSpeed;
             }
 
             currentAttackInstance.transform.parent = null;
@@ -160,7 +146,7 @@ public class AttaqueChara : MonoBehaviour
         currentChargeTime = 0f;
     }
 
-    private void DisintegrateProjectile()
+    void DisintegrateProjectile()
     {
         isCharging = false;
 
@@ -179,5 +165,12 @@ public class AttaqueChara : MonoBehaviour
     {
         yield return new WaitForSeconds(cooldownTime);
         isOnCooldown = false;
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        // Visualise le cercle autour du joueur
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(transform.position, orbitRadius);
     }
 }

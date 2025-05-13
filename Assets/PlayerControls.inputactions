@@ -3,13 +3,13 @@
     "maps": [
         {
             "name": "Player",
-            "id": "570aa89b-e0be-48fa-80b9-b2c15c2f45ee",
+            "id": "ca0c6ac5-54e8-4ac0-9c24-f79435758396",
             "actions": [
                 {
                     "name": "Move",
                     "type": "Value",
-                    "id": "a1ef60d4-9747-47bb-b8dd-22308ba2f43f",
-                    "expectedControlType": "Vector2",
+                    "id": "10042e4a-f967-4ca0-b644-d3e9e9a7d0bf",
+                    "expectedControlType": "Axis",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
@@ -17,7 +17,7 @@
                 {
                     "name": "Jump",
                     "type": "Button",
-                    "id": "897fc59b-2021-4b0c-85d1-9ae900ba7c42",
+                    "id": "51f9a1cf-5115-4155-90c4-9325c3f0d1ef",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -26,7 +26,7 @@
                 {
                     "name": "Dash",
                     "type": "Button",
-                    "id": "248a4037-aa8d-460e-bc83-959a391e4d67",
+                    "id": "46154c3a-2714-44a5-ad00-0999ea4098be",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -35,8 +35,8 @@
                 {
                     "name": "Aim",
                     "type": "Value",
-                    "id": "3dd482b9-8b51-44c5-929e-fcd3bb6323b9",
-                    "expectedControlType": "Axis",
+                    "id": "9d735f25-f3e0-4430-9b60-48688cd34411",
+                    "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
@@ -44,17 +44,37 @@
                 {
                     "name": "ChargeAttack",
                     "type": "Button",
-                    "id": "b498a888-72d4-473d-92b9-81097be9a50d",
+                    "id": "72befb58-eb36-4165-b692-300f891e1547",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "MouseAim",
+                    "type": "Value",
+                    "id": "9701b2c3-6ba8-4ad9-a882-fa87642d9322",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
                 {
                     "name": "",
-                    "id": "2352ffb2-5063-4046-9fed-3c6c6d44d210",
+                    "id": "a85a3926-3bb3-4d01-9967-56f7cbba7bc7",
+                    "path": "<Gamepad>/leftStick/x",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e06a1d02-2956-4a67-867c-e92df45a1e1f",
                     "path": "<Gamepad>/leftShoulder",
                     "interactions": "",
                     "processors": "",
@@ -65,7 +85,7 @@
                 },
                 {
                     "name": "",
-                    "id": "1ae4d018-e209-402e-8b5c-4807bbac433f",
+                    "id": "dc19b5e8-d13d-4eb2-9c7f-5ad7cef5582f",
                     "path": "<Gamepad>/leftTrigger",
                     "interactions": "",
                     "processors": "",
@@ -75,41 +95,30 @@
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "One Modifier",
-                    "id": "4d082d8e-5492-4e49-a462-dd81c470c615",
-                    "path": "OneModifier",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Aim",
-                    "isComposite": true,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "modifier",
-                    "id": "a30bcfd3-45a2-49e3-9d30-b46c86660e8e",
-                    "path": "",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Aim",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "binding",
-                    "id": "dca2cc3d-664f-4e76-8a2e-08cae2189ae7",
+                    "name": "",
+                    "id": "a3721287-f366-43e3-8a56-05ca17e9b583",
                     "path": "<Gamepad>/rightStick",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "Aim",
                     "isComposite": false,
-                    "isPartOfComposite": true
+                    "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "ea40f933-f903-4326-a700-1de7c6563891",
+                    "id": "fc145119-b18c-4598-928a-1646cb5a8d20",
+                    "path": "<Gamepad>/rightTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ChargeAttack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "36e17410-f5de-4905-b9b9-4be789738571",
                     "path": "<Gamepad>/rightShoulder",
                     "interactions": "",
                     "processors": "",
@@ -120,102 +129,14 @@
                 },
                 {
                     "name": "",
-                    "id": "342f3ad3-0a5c-4580-816e-94c02dbd6750",
-                    "path": "<Gamepad>/rightTrigger",
+                    "id": "4d3efa0c-9bde-4532-a7d4-939eef943aa0",
+                    "path": "<Mouse>/position",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "ChargeAttack",
+                    "action": "MouseAim",
                     "isComposite": false,
                     "isPartOfComposite": false
-                },
-                {
-                    "name": "One Modifier",
-                    "id": "2e1f5c93-bce6-48a9-a586-fbd2e592cf76",
-                    "path": "OneModifier",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move",
-                    "isComposite": true,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "modifier",
-                    "id": "721c4ebe-0bef-41d8-97d3-c10e6a942824",
-                    "path": "",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "modifier",
-                    "id": "d8d5ae53-9749-472c-a4bf-64f1cd8b189c",
-                    "path": "<Gamepad>/leftStick",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "2D Vector",
-                    "id": "78d27857-1f35-4b74-9b51-6c2cb0a46310",
-                    "path": "2DVector",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move",
-                    "isComposite": true,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "Up",
-                    "id": "998e0406-6593-4296-b844-f41c30b877c9",
-                    "path": "",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "Down",
-                    "id": "9d6fd183-37b9-4f74-a49a-af56ffb45b7a",
-                    "path": "",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "Left",
-                    "id": "44759b94-cd5c-4337-be22-b7ac6d151744",
-                    "path": "<Keyboard>/a",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "Right",
-                    "id": "bbeb9091-48f5-42cd-9f31-fd3833a3b3f4",
-                    "path": "<Keyboard>/d",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
                 }
             ]
         }
