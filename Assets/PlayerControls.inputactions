@@ -49,15 +49,6 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
-                },
-                {
-                    "name": "MouseAim",
-                    "type": "Value",
-                    "id": "9701b2c3-6ba8-4ad9-a882-fa87642d9322",
-                    "expectedControlType": "Vector2",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -124,17 +115,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "ChargeAttack",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "4d3efa0c-9bde-4532-a7d4-939eef943aa0",
-                    "path": "<Mouse>/position",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "MouseAim",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

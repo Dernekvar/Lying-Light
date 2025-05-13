@@ -71,15 +71,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""MouseAim"",
-                    ""type"": ""Value"",
-                    ""id"": ""9701b2c3-6ba8-4ad9-a882-fa87642d9322"",
-                    ""expectedControlType"": ""Vector2"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -148,17 +139,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""action"": ""ChargeAttack"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""4d3efa0c-9bde-4532-a7d4-939eef943aa0"",
-                    ""path"": ""<Mouse>/position"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""MouseAim"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -172,7 +152,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_Player_Dash = m_Player.FindAction("Dash", throwIfNotFound: true);
         m_Player_Aim = m_Player.FindAction("Aim", throwIfNotFound: true);
         m_Player_ChargeAttack = m_Player.FindAction("ChargeAttack", throwIfNotFound: true);
-        m_Player_MouseAim = m_Player.FindAction("MouseAim", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -239,7 +218,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Dash;
     private readonly InputAction m_Player_Aim;
     private readonly InputAction m_Player_ChargeAttack;
-    private readonly InputAction m_Player_MouseAim;
     public struct PlayerActions
     {
         private @PlayerControls m_Wrapper;
@@ -249,7 +227,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         public InputAction @Dash => m_Wrapper.m_Player_Dash;
         public InputAction @Aim => m_Wrapper.m_Player_Aim;
         public InputAction @ChargeAttack => m_Wrapper.m_Player_ChargeAttack;
-        public InputAction @MouseAim => m_Wrapper.m_Player_MouseAim;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -274,9 +251,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @ChargeAttack.started += instance.OnChargeAttack;
             @ChargeAttack.performed += instance.OnChargeAttack;
             @ChargeAttack.canceled += instance.OnChargeAttack;
-            @MouseAim.started += instance.OnMouseAim;
-            @MouseAim.performed += instance.OnMouseAim;
-            @MouseAim.canceled += instance.OnMouseAim;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -296,9 +270,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @ChargeAttack.started -= instance.OnChargeAttack;
             @ChargeAttack.performed -= instance.OnChargeAttack;
             @ChargeAttack.canceled -= instance.OnChargeAttack;
-            @MouseAim.started -= instance.OnMouseAim;
-            @MouseAim.performed -= instance.OnMouseAim;
-            @MouseAim.canceled -= instance.OnMouseAim;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -323,6 +294,5 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         void OnDash(InputAction.CallbackContext context);
         void OnAim(InputAction.CallbackContext context);
         void OnChargeAttack(InputAction.CallbackContext context);
-        void OnMouseAim(InputAction.CallbackContext context);
     }
 }

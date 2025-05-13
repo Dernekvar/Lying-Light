@@ -20,7 +20,7 @@ public class AttaqueChara : MonoBehaviour
     public Material readyMaterial;
 
     [Header("Orbit Settings")]
-    public float orbitRadius = 1.5f; // Distance fixe autour du joueur
+    public float orbitRadius = 1.5f;
 
     private GameObject currentAttackInstance;
     private bool isCharging = false;
@@ -29,26 +29,56 @@ public class AttaqueChara : MonoBehaviour
     private bool isOnCooldown = false;
     private bool materialChanged = false;
 
+    private Vector2 aimDirection = Vector2.right; // Direction par défaut
+    private PlayerInput playerInput;
+    private InputAction aimAction;
+    private InputAction chargeAction;
+
+    private void Awake()
+    {
+        playerInput = GetComponent<PlayerInput>();
+        aimAction = playerInput.actions["Aim"];
+        chargeAction = playerInput.actions["ChargeAttack"];
+    }
+
     void Update()
     {
-        HandleMouseInput();
-        UpdateAttackSpawnPoint();
+        Vector2 aimInput = aimAction.ReadValue<Vector2>();
+        if (aimInput.sqrMagnitude > 0.001f)
+        {
+            aimDirection = aimInput.normalized;
+        }
+        HandleAim();
+        HandleChargeAttack();
 
-        // Si une attaque est en charge, la position de l'attaque doit suivre le spawn point
         if (isCharging && currentAttackInstance != null)
         {
             currentAttackInstance.transform.position = attackSpawnPoint.position;
         }
     }
 
-    void HandleMouseInput()
+    void HandleAim()
     {
-        if (Input.GetMouseButtonDown(0) && !isOnCooldown && !isCharging)
+        Vector2 aimInput = aimAction.ReadValue<Vector2>();
+        if (aimInput.sqrMagnitude > 0.001f) // Évite les valeurs nulles ou trop proches de zéro
+        {
+            aimDirection = aimInput.normalized;
+        }
+
+        attackSpawnPoint.position = transform.position + (Vector3)(aimDirection * orbitRadius);
+
+        float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
+        attackSpawnPoint.rotation = Quaternion.Euler(0f, 0f, angle);
+    }
+
+    void HandleChargeAttack()
+    {
+        if (chargeAction.WasPressedThisFrame() && !isOnCooldown && !isCharging)
         {
             StartCharging();
         }
 
-        if (Input.GetMouseButton(0) && isCharging && currentAttackInstance != null)
+        if (chargeAction.IsPressed() && isCharging && currentAttackInstance != null)
         {
             currentChargeTime += Time.deltaTime;
             float progress = Mathf.Clamp01(currentChargeTime / chargeTime);
@@ -66,38 +96,13 @@ public class AttaqueChara : MonoBehaviour
             }
         }
 
-        if (Input.GetMouseButtonUp(0) && isCharging)
+        if (chargeAction.WasReleasedThisFrame() && isCharging)
         {
             if (canShoot)
                 LaunchProjectile();
             else
                 DisintegrateProjectile();
         }
-    }
-
-    void UpdateAttackSpawnPoint()
-    {
-        // Obtenir la position de la souris en monde
-        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(
-            new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane)
-        );
-
-        Vector2 direction = (mouseWorldPos - transform.position);
-
-        if (direction.sqrMagnitude < 0.001f)
-        {
-            direction = Vector2.right; // Direction par défaut si la souris est trop proche
-        }
-        else
-        {
-            direction.Normalize(); // Sinon on normalise normalement
-        }
-
-        attackSpawnPoint.position = transform.position + (Vector3)(direction * orbitRadius);
-
-        // Le faire pointer vers la souris
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        attackSpawnPoint.rotation = Quaternion.Euler(0f, 0f, angle);
     }
 
     void StartCharging()
@@ -134,7 +139,6 @@ public class AttaqueChara : MonoBehaviour
             Rigidbody2D projRb = currentAttackInstance.GetComponent<Rigidbody2D>();
             if (projRb != null)
             {
-                Vector2 aimDirection = (Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position).normalized;
                 projRb.velocity = aimDirection * projectileSpeed;
             }
 
@@ -169,7 +173,6 @@ public class AttaqueChara : MonoBehaviour
 
     void OnDrawGizmosSelected()
     {
-        // Visualise le cercle autour du joueur
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(transform.position, orbitRadius);
     }
