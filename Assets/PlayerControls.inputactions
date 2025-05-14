@@ -65,6 +65,28 @@
                 },
                 {
                     "name": "",
+                    "id": "9bf3ce49-b23f-4217-896d-2963ac3f191f",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "Invert",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f769734a-31b6-41c7-8f2e-47b3dd521755",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "e06a1d02-2956-4a67-867c-e92df45a1e1f",
                     "path": "<Gamepad>/leftShoulder",
                     "interactions": "",

@@ -20,6 +20,9 @@ public class PlayerMovement : MonoBehaviour
     private InputAction moveAction;
     private InputAction dashAction;
 
+    //  Nouveau flag ajouté pour laisser le knockback faire son effet
+    [HideInInspector] public bool isKnockedBack = false;
+
     void OnEnable()
     {
         if (inputActions == null)
@@ -27,6 +30,7 @@ public class PlayerMovement : MonoBehaviour
             Debug.LogError("inputActions est NULL ! Vérifie son assignation dans l'Inspector.");
             return;
         }
+
         inputActions.Enable();
         moveAction = inputActions.FindAction("Player/Move", true);
         dashAction = inputActions.FindAction("Player/Dash", true);
@@ -61,7 +65,8 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (!isDashing)
+        //  On n'écrase pas la vélocité pendant un knockback
+        if (!isDashing && !isKnockedBack)
         {
             rb.velocity = new Vector2(moveInput * maxSpeed, rb.velocity.y);
         }
@@ -69,21 +74,19 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleMove(InputAction.CallbackContext ctx)
     {
-        moveInput = ctx.ReadValue<float>(); // Lecture de l'axe (-1 pour gauche, 1 pour droite)
-
+        moveInput = ctx.ReadValue<float>();
         Debug.Log("Valeur de moveInput : " + moveInput);
-
-        
     }
 
     private void StopMove(InputAction.CallbackContext ctx)
     {
-        moveInput = 0; // On remet l'input à zéro
-        if (!isDashing)
+        moveInput = 0;
+        if (!isDashing && !isKnockedBack)
         {
-            rb.velocity = new Vector2(0, rb.velocity.y); // Stoppe le mouvement horizontal
+            rb.velocity = new Vector2(0, rb.velocity.y);
         }
     }
+
     private void HandleDash(InputAction.CallbackContext ctx)
     {
         if (!isDashing && Time.time >= lastDashTime + dashCooldown)

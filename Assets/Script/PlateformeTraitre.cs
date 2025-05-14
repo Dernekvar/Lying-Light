@@ -39,13 +39,11 @@ public class PlateformeTraitre : MonoBehaviour
     {
         yield return new WaitForSeconds(delayBeforeDisappear);
 
-        sr.enabled = false;
-        col.enabled = false;
+        gameObject.SetActive(false); // Désactive complètement l'objet
 
         yield return new WaitForSeconds(reappearDelay);
 
-        sr.enabled = true;
-        col.enabled = true;
+        gameObject.SetActive(true); // Réactive complètement l'objet
 
         isTriggered = false; // Réactivation possible pour un autre passage
     }

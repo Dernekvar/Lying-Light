@@ -1,29 +1,33 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement; // Assurez-vous d'inclure ce namespace
+using UnityEngine.SceneManagement;
 
 public class PlayerHealth : MonoBehaviour
 {
     public int maxHealth = 5;
     public int currentHealth;
-    private bool isInvincible = false;
-    private SpriteRenderer sr;
-    private Rigidbody2D rb;
-    public HealthUI healthUI; // Référence au script HealthUI
-    public int damageOnCollision = 1; // Définir la quantité de dégâts par défaut
-    public Transform playerSpawnPoint; // Référence au point de spawn du joueur
-
     public float knockbackForce = 10f;
-    public float invincibilityTime = 1.5f;
+    public float invincibilityTime = 1f;
     public float blinkInterval = 0.1f;
+    public int damageOnCollision = 1;
+    public Transform playerSpawnPoint;
+
+    private bool isInvincible = false;
+    private Rigidbody2D rb;
+    private SpriteRenderer sr;
+    private PlayerMovement playerMovement;
+    private Collider2D playerCollider;
+
+    public HealthUI healthUI;
 
     void Start()
     {
         currentHealth = maxHealth;
-        sr = GetComponent<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
-        healthUI.UpdateHearts(); // Met à jour les cœurs au début
+        sr = GetComponent<SpriteRenderer>();
+        playerMovement = GetComponent<PlayerMovement>();
+        playerCollider = GetComponent<Collider2D>();
     }
 
     public void TakeDamage(int amount, Vector2 sourcePosition)
@@ -34,16 +38,53 @@ public class PlayerHealth : MonoBehaviour
         Debug.Log("Player took damage. HP: " + currentHealth);
         healthUI.UpdateHearts();
 
-        CancelChargingProjectiles(); // Annule et supprime les projectiles encore en charge
+        CancelChargingProjectiles();
 
-        Vector2 knockbackDir = (transform.position - (Vector3)sourcePosition).normalized;
+        // Récupérer le point de collision à partir du collider
+        Vector2 collisionPoint = playerCollider != null
+            ? playerCollider.ClosestPoint(sourcePosition)
+            : transform.position;
+
+        // Calcul du knockback directionnel
+        Vector2 knockbackDir = ((Vector2)transform.position - collisionPoint).normalized;
+
+        // Renforce le knockback horizontal, limite le vertical
+        if (Mathf.Abs(knockbackDir.x) < 0.01f)
+            knockbackDir.x = 1f; // évite x = 0
+        else
+            knockbackDir.x = Mathf.Sign(knockbackDir.x) * Mathf.Max(Mathf.Abs(knockbackDir.x), 1f);
+
+        knockbackDir.y = Mathf.Sign(knockbackDir.y) * Mathf.Min(Mathf.Abs(knockbackDir.y), 0.5f);
+
+        Debug.Log("Knockback direction: " + knockbackDir);
+
+        // Appliquer le knockback
         rb.AddForce(knockbackDir * knockbackForce, ForceMode2D.Impulse);
 
+        // Activer l'invincibilité visuelle + logique
         StartCoroutine(Invincibility());
+
+        // Désactive temporairement le contrôle horizontal
+        StartCoroutine(HandleKnockback());
 
         if (currentHealth <= 0)
         {
             Die();
+        }
+    }
+
+    private IEnumerator HandleKnockback()
+    {
+        if (playerMovement != null)
+        {
+            playerMovement.isKnockedBack = true;
+        }
+
+        yield return new WaitForSeconds(0.2f); // Durée du knockback
+
+        if (playerMovement != null)
+        {
+            playerMovement.isKnockedBack = false;
         }
     }
 
@@ -52,9 +93,9 @@ public class PlayerHealth : MonoBehaviour
         ComportementProjectile[] projectiles = FindObjectsOfType<ComportementProjectile>();
         foreach (var proj in projectiles)
         {
-            if (proj.isCharging) // Seuls les projectiles en charge sont concernés
+            if (proj.isCharging)
             {
-                Destroy(proj.gameObject); // Supprime le prefab de la scène
+                Destroy(proj.gameObject);
             }
         }
     }
@@ -74,6 +115,7 @@ public class PlayerHealth : MonoBehaviour
     {
         isInvincible = true;
         float timer = 0f;
+        int defaultLayer = gameObject.layer;
 
         while (timer < invincibilityTime)
         {
@@ -85,8 +127,8 @@ public class PlayerHealth : MonoBehaviour
 
         sr.enabled = true;
         isInvincible = false;
+        gameObject.layer = defaultLayer;
     }
-
     private IEnumerator FadeOutAndRespawn()
     {
         // Fade-out du SpriteRenderer

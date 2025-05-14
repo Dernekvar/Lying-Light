@@ -29,7 +29,7 @@ public class AttaqueChara : MonoBehaviour
     private bool isOnCooldown = false;
     private bool materialChanged = false;
 
-    private Vector2 aimDirection = Vector2.right; // Direction par défaut
+    private Vector2 aimDirection = Vector2.right;
     private PlayerInput playerInput;
     private InputAction aimAction;
     private InputAction chargeAction;
@@ -43,11 +43,6 @@ public class AttaqueChara : MonoBehaviour
 
     void Update()
     {
-        Vector2 aimInput = aimAction.ReadValue<Vector2>();
-        if (aimInput.sqrMagnitude > 0.001f)
-        {
-            aimDirection = aimInput.normalized;
-        }
         HandleAim();
         HandleChargeAttack();
 
@@ -59,12 +54,11 @@ public class AttaqueChara : MonoBehaviour
 
     void HandleAim()
     {
-        Vector2 aimInput = aimAction.ReadValue<Vector2>();
-        if (aimInput.sqrMagnitude > 0.001f) // Évite les valeurs nulles ou trop proches de zéro
-        {
-            aimDirection = aimInput.normalized;
-        }
+        aimDirection = aimAction.ReadValue<Vector2>();
+        if (aimDirection.sqrMagnitude < 0.001f)
+            return;
 
+        aimDirection.Normalize();
         attackSpawnPoint.position = transform.position + (Vector3)(aimDirection * orbitRadius);
 
         float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
