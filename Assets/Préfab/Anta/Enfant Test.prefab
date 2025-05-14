@@ -45,7 +45,7 @@ GameObject:
   - component: {fileID: 2329803284730454614}
   - component: {fileID: 8814557807616712779}
   - component: {fileID: 837876279741825116}
-  m_Layer: 6
+  m_Layer: 11
   m_Name: Enfant Test
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -62,7 +62,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0.261, y: 6.9, z: 0}
-  m_LocalScale: {x: 0.028806364, y: 1.8718611, z: 0.98232}
+  m_LocalScale: {x: 0.66, y: 0.53, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8527223615925344261}
@@ -235,3 +235,4 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
+  maxHealth: 1

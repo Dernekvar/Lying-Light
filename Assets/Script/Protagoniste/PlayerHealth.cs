@@ -80,6 +80,7 @@ public class PlayerHealth : MonoBehaviour
             sr.enabled = !sr.enabled;
             yield return new WaitForSeconds(blinkInterval);
             timer += blinkInterval;
+            gameObject.layer = LayerMask.NameToLayer("Invincible");
         }
 
         sr.enabled = true;

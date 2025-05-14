@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 6727515317344269103}
   - component: {fileID: 2088823944487586044}
   - component: {fileID: 4871136551752800053}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Bouddha Test
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -31,7 +31,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0.1324692, y: 11.166531, z: 0}
-  m_LocalScale: {x: 0.053948883, y: 3.5056424, z: 1.8397}
+  m_LocalScale: {x: 2.35, y: 2.03, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4495758574986657884}
@@ -204,6 +204,9 @@ MonoBehaviour:
   chargeTime: 4
   cooldownTime: 1
   speed: 5
+  maxHealth: 3
+  flashDuration: 1
+  flashInterval: 0.1
 --- !u!1 &5823165900432833734
 GameObject:
   m_ObjectHideFlags: 0
