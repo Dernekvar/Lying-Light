@@ -30,6 +30,7 @@ public class AttaqueChara : MonoBehaviour
     private bool materialChanged = false;
 
     private Vector2 aimDirection = Vector2.right;
+    private Vector2 defaultAimDirection = new Vector2(1, 0);
     private PlayerInput playerInput;
     private InputAction aimAction;
     private InputAction chargeAction;
@@ -52,18 +53,38 @@ public class AttaqueChara : MonoBehaviour
         }
     }
 
+    void Flip()
+    {
+        // Inversion de l'échelle du personnage
+        transform.localScale = new Vector3(-transform.localScale.x, transform.localScale.y, transform.localScale.z);
+
+        // Inversion de la direction de visée
+        aimDirection = -defaultAimDirection;
+    }
+
     void HandleAim()
     {
-        aimDirection = aimAction.ReadValue<Vector2>();
-        if (aimDirection.sqrMagnitude < 0.001f)
+        // Vérification pour éviter une NullReferenceException
+        if (aimAction == null || attackSpawnPoint == null)
+        {
+            Debug.LogError("AimAction ou AttackSpawnPoint est null !");
             return;
+        }
+
+        aimDirection = aimAction.ReadValue<Vector2>();
+
+        // Si le joystick n'est pas utilisé, conserver la direction par défaut
+        if (aimDirection.sqrMagnitude < 0.001f)
+            aimDirection = defaultAimDirection;
 
         aimDirection.Normalize();
+
         attackSpawnPoint.position = transform.position + (Vector3)(aimDirection * orbitRadius);
 
         float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
         attackSpawnPoint.rotation = Quaternion.Euler(0f, 0f, angle);
     }
+
 
     void HandleChargeAttack()
     {

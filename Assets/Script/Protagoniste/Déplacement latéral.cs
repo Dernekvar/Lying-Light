@@ -14,6 +14,7 @@ public class PlayerMovement : MonoBehaviour
     private bool isDashing = false;
     private float lastDashTime;
     private float moveInput;
+    private Vector3 originalScale;
 
     [Header("Input System")]
     public InputActionAsset inputActions;
@@ -27,17 +28,12 @@ public class PlayerMovement : MonoBehaviour
     {
         if (inputActions == null)
         {
-            Debug.LogError("inputActions est NULL ! Vérifie son assignation dans l'Inspector.");
             return;
         }
 
         inputActions.Enable();
         moveAction = inputActions.FindAction("Player/Move", true);
         dashAction = inputActions.FindAction("Player/Dash", true);
-
-        Debug.Log("Vérification Move & Dash : " +
-                  "Move Action: " + (moveAction != null ? "OK" : "Manquant") +
-                  " Dash Action: " + (dashAction != null ? "OK" : "Manquant"));
 
         moveAction.performed += HandleMove;
         moveAction.canceled += StopMove;
@@ -61,6 +57,7 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         rb.freezeRotation = true;
+        originalScale = transform.localScale;
     }
 
     void FixedUpdate()
@@ -72,10 +69,23 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    private void Flip()
+    {
+        if (moveInput != 0) // Flip seulement si on se déplace
+        {
+            float newXScale = originalScale.x * Mathf.Sign(moveInput);
+            transform.localScale = new Vector3(newXScale, originalScale.y, originalScale.z);
+        }
+    }
+
     private void HandleMove(InputAction.CallbackContext ctx)
     {
         moveInput = ctx.ReadValue<float>();
-        Debug.Log("Valeur de moveInput : " + moveInput);
+
+        if (moveInput != 0)
+        {
+            Flip();
+        }
     }
 
     private void StopMove(InputAction.CallbackContext ctx)
