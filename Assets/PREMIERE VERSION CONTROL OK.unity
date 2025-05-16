@@ -865,10 +865,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3333941964310769821, guid: 9c926822d9f984c46ad0316a0821e892, type: 3}
-      propertyPath: m_DrawMode
-      value: 1
-      objectReference: {fileID: 0}
+    - target: {fileID: 5499619011952402588, guid: 9c926822d9f984c46ad0316a0821e892, type: 3}
+      propertyPath: healthUI
+      value: 
+      objectReference: {fileID: 1991663273}
     - target: {fileID: 5499619011952402588, guid: 9c926822d9f984c46ad0316a0821e892, type: 3}
       propertyPath: playerSpawnPoint
       value: 
@@ -876,10 +876,6 @@ PrefabInstance:
     - target: {fileID: 7405581099269101936, guid: 9c926822d9f984c46ad0316a0821e892, type: 3}
       propertyPath: m_Name
       value: Perso
-      objectReference: {fileID: 0}
-    - target: {fileID: 9040394319852198437, guid: 9c926822d9f984c46ad0316a0821e892, type: 3}
-      propertyPath: m_Name
-      value: "UI Sant\xE9"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1479,6 +1475,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b0e28ab2a7bf57f459b74bb64cfd2425, type: 3}
+--- !u!114 &1991663273 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6779450882355316593, guid: 75ea34f543690a545a90221cf1c97935, type: 3}
+  m_PrefabInstance: {fileID: 1110176437}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a70dd24a4f1c6aa43b81b217c285606b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1993966046
 GameObject:
   m_ObjectHideFlags: 0
