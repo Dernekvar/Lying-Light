@@ -60,7 +60,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5335243516384835352}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.36978608, y: 12.9, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -231,11 +231,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   projectilePrefab: {fileID: 8713507146439778433, guid: d540860558e030c418f2ae38d5b86244, type: 3}
   firePoint: {fileID: 7516748087508867197}
-  chargeTime: 3
+  chargeTime: 4
   targetScale: 2
-  projectileSpeed: 10
+  projectileSpeed: 8
   damage: 1
-  cooldownTime: 1
+  cooldownTime: 2
   chargingMaterial: {fileID: 2100000, guid: 24d09a4f973bb7344af7ac5d64bee3e1, type: 2}
   readyMaterial: {fileID: -876546973899608171, guid: 1af8fe04eb4294745a196fef60179509, type: 3}
   maxHealth: 2

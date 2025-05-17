@@ -14,6 +14,11 @@ public class JumpCharacter : MonoBehaviour
     private InputAction jumpAction;
     public InputActionAsset inputActions;
 
+    [Header("Floating Fall Settings")]
+    public float normalGravity = 1f;
+    public float floatGravity = 0.3f;
+    public float fallSpeedLimit = 3f;
+
     void OnEnable()
     {
         if (inputActions == null)
@@ -28,45 +33,65 @@ public class JumpCharacter : MonoBehaviour
                   "\nJump Action: " + (jumpAction != null ? "OK" : "Manquant"));
 
         jumpAction.started += HandleJump;
-        jumpAction.Enable(); }
+        jumpAction.Enable();
+    }
 
-        void OnDisable()
-        {
-            jumpAction.started -= HandleJump;
-            _asset.Disable();
-        }
+    void OnDisable()
+    {
+        jumpAction.started -= HandleJump;
+        _asset.Disable();
+    }
 
-        void Start()
-        {
-            rb = GetComponent<Rigidbody2D>();
-        }
+    void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+    }
 
-        void OnCollisionEnter2D(Collision2D collision)
+    void Update()
+    {
+        // Appliquer effet de flottement pendant la chute
+        if (rb.velocity.y < 0)
         {
-            if (((1 << collision.gameObject.layer) & groundLayer) != 0)
+            rb.gravityScale = floatGravity;
+
+            // Limite la vitesse de chute
+            if (rb.velocity.y < -fallSpeedLimit)
             {
-                isGrounded = true;
+                rb.velocity = new Vector2(rb.velocity.x, -fallSpeedLimit);
             }
         }
-
-        void OnCollisionExit2D(Collision2D collision)
+        else
         {
-            if (((1 << collision.gameObject.layer) & groundLayer) != 0)
-            {
-                isGrounded = false;
-            }
-        }
-
-        void HandleJump(InputAction.CallbackContext ctx)
-        {
-            if (isGrounded && ctx.ReadValue<float>() > 0)
-            {
-                Jump();
-            }
-        }
-
-        void Jump()
-        {
-            rb.velocity = new Vector2(rb.velocity.x, jumpHeight);
+            rb.gravityScale = normalGravity;
         }
     }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (((1 << collision.gameObject.layer) & groundLayer) != 0)
+        {
+            isGrounded = true;
+        }
+    }
+
+    void OnCollisionExit2D(Collision2D collision)
+    {
+        if (((1 << collision.gameObject.layer) & groundLayer) != 0)
+        {
+            isGrounded = false;
+        }
+    }
+
+    void HandleJump(InputAction.CallbackContext ctx)
+    {
+        if (isGrounded && ctx.ReadValue<float>() > 0)
+        {
+            Jump();
+        }
+    }
+
+    void Jump()
+    {
+        rb.velocity = new Vector2(rb.velocity.x, jumpHeight);
+    }
+}

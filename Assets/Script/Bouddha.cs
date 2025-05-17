@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Bouddha : MonoBehaviour
 {
+    public enum MovementState { Infinity, Dashing, Returning }
+
     [Header("Dégâts et Activation")]
     public float damage = 1f;
     private bool isActive = false;
@@ -12,19 +14,37 @@ public class Bouddha : MonoBehaviour
     public GameObject projectilePrefab;
     public Transform firePoint;
     public float chargeTime = 2f;
+    public float targetScale = 2f;
+    public float projectileSpeed = 10f;
     public float cooldownTime = 3f;
+    private bool canShoot = true;
+    private GameObject currentEnergyBall;
 
-    [Header("Déplacement")]
-    public float speed = 3f;
+    [Header("Visual Settings")]
+    public Material chargingMaterial;
+    public Material readyMaterial;
+
+    [Header("Déplacement en infini")]
+    public float infinitySpeed = 2f;
+    public float infinityAmplitude = 1f;
+    public float infinityFrequency = 1f;
+    public Transform centerPoint;
+
+    [Header("Retour au centre")]
+    public float returnSpeed = 3f;
+
+    [Header("Charge vers joueur")]
+    public float dashSpeed = 6f;
+    public float attackInterval = 5f;
+
+    private MovementState currentState = MovementState.Infinity;
+
+    private float attackTimer;
+    private float timeSinceStart;
+
     private Rigidbody2D rb;
-    private Vector2 direction;
-
-    [Header("Gestion de blocage")]
-    private float stuckTimer = 0f;
-    private float checkInterval = 1f;
-    private float minSpeedThreshold = 0.5f;
-    private bool isIntangible = false;
-    private float intangibleDuration = 2f;
+    private SpriteRenderer sr;
+    private Color originalColor;
 
     [Header("Vie")]
     public int maxHealth = 3;
@@ -35,8 +55,6 @@ public class Bouddha : MonoBehaviour
     public float flashInterval = 0.1f;
 
     private GameObject currentProjectile;
-    private SpriteRenderer sr;
-    private Color originalColor;
 
     void Start()
     {
@@ -50,16 +68,8 @@ public class Bouddha : MonoBehaviour
     public void Activer()
     {
         if (isActive) return;
-
         isActive = true;
         StartCoroutine(IncantationLoop());
-
-        GameObject joueur = GameObject.FindGameObjectWithTag("Player");
-        if (joueur != null)
-        {
-            direction = (joueur.transform.position - transform.position).normalized;
-            rb.velocity = direction * speed;
-        }
     }
 
     private IEnumerator IncantationLoop()
@@ -73,111 +83,140 @@ public class Bouddha : MonoBehaviour
 
     private IEnumerator Incantation()
     {
-        currentProjectile = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
-        currentProjectile.transform.localScale = Vector3.zero;
+        if (!canShoot) yield break;
 
-        Rigidbody2D projRb = currentProjectile.GetComponent<Rigidbody2D>();
+        canShoot = false;
+
+        currentEnergyBall = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
+        currentEnergyBall.transform.localScale = Vector3.zero;
+        SetProjectileMaterial(chargingMaterial);
 
         float currentChargeTime = 0f;
-        while (currentChargeTime < chargeTime && currentProjectile != null)
+        while (currentChargeTime < chargeTime && currentEnergyBall != null)
         {
             currentChargeTime += Time.deltaTime;
-            float progress = Mathf.Clamp01(currentChargeTime / chargeTime);
-            float scaleValue = Mathf.Lerp(0f, 2f, progress);
-            currentProjectile.transform.localScale = new Vector3(scaleValue, scaleValue, 1f);
+            float progress = Mathf.Pow(currentChargeTime / chargeTime, 1.5f);
+            float scaleValue = Mathf.Lerp(0f, targetScale, progress);
 
-            currentProjectile.transform.position = firePoint.position;
+            currentEnergyBall.transform.localScale = new Vector3(scaleValue, scaleValue, 1f);
+            currentEnergyBall.transform.position = firePoint.position; // ici pour suivre la position pendant la charge
 
             yield return null;
         }
 
-        if (currentProjectile != null)
+        if (currentEnergyBall != null)
         {
-            GameObject joueur = GameObject.FindGameObjectWithTag("Player");
-            if (joueur != null)
-            {
-                Vector2 directionTir = (joueur.transform.position - transform.position).normalized;
-                projRb.velocity = directionTir * 5f;
-            }
-
-            currentProjectile = null;
+            SetProjectileMaterial(readyMaterial);
+            TirProjectile();
         }
+
+        canShoot = true;
     }
 
-    private void Update()
+    private void TirProjectile()
     {
-        if (!isActive) return;
-
-        if (rb.velocity.magnitude < minSpeedThreshold)
-        {
-            stuckTimer += Time.deltaTime;
-
-            if (stuckTimer >= checkInterval)
-            {
-                Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, 0.5f);
-                int obstacleCount = 0;
-
-                foreach (Collider2D col in colliders)
-                {
-                    if (col.CompareTag("Enemy") || col.CompareTag("Obstacle"))
-                        obstacleCount++;
-                }
-
-                if (obstacleCount >= 2)
-                {
-                    StartCoroutine(ActiverIntangibilite());
-                }
-                else
-                {
-                    direction = Random.insideUnitCircle.normalized;
-                    rb.velocity = direction * speed;
-                }
-
-                stuckTimer = 0f;
-            }
-        }
-        else
-        {
-            stuckTimer = 0f;
-        }
-    }
-
-    private IEnumerator ActiverIntangibilite()
-    {
-        if (isIntangible) yield break;
-
-        isIntangible = true;
-        Collider2D col = GetComponent<Collider2D>();
-        if (col != null) col.enabled = false;
+        if (currentEnergyBall == null) return;
 
         GameObject joueur = GameObject.FindGameObjectWithTag("Player");
         if (joueur != null)
         {
-            direction = (joueur.transform.position - transform.position).normalized;
-            rb.velocity = direction * speed * 1.5f;
+            Vector2 directionTir = (joueur.transform.position - transform.position).normalized;
+            Rigidbody2D projRb = currentEnergyBall.GetComponent<Rigidbody2D>();
+            if (projRb != null)
+            {
+                projRb.velocity = directionTir * projectileSpeed;
+            }
         }
 
-        yield return new WaitForSeconds(intangibleDuration);
+        currentEnergyBall.transform.parent = null;
+        currentEnergyBall = null;
+    }
 
-        if (col != null) col.enabled = true;
-        isIntangible = false;
+    void SetProjectileMaterial(Material mat)
+    {
+        if (currentEnergyBall == null || mat == null) return;
+
+        SpriteRenderer sr = currentEnergyBall.GetComponent<SpriteRenderer>();
+        if (sr != null)
+        {
+            sr.material = mat;
+        }
+    }
+
+    void Update()
+    {
+        if (!isActive) return;
+
+        attackTimer += Time.deltaTime;
+
+        switch (currentState)
+        {
+            case MovementState.Infinity:
+                MoveInInfinity(); // **Ta fonction intacte**
+                if (attackTimer >= attackInterval)
+                {
+                    attackTimer = 0f;
+                    StartCoroutine(DashTowardsPlayer());
+                }
+                break;
+
+            case MovementState.Dashing:
+                // On ne change pas rb.velocity ici, il est défini dans DashTowardsPlayer
+                break;
+
+            case MovementState.Returning:
+                ReturnToCenter();
+                break;
+        }
+    }
+
+    void MoveInInfinity()
+    {
+        timeSinceStart += Time.deltaTime * infinityFrequency;
+        float x = Mathf.Sin(timeSinceStart) * infinityAmplitude;
+        float y = Mathf.Sin(timeSinceStart * 2) * infinityAmplitude;
+        Vector2 target = (Vector2)centerPoint.position + new Vector2(x, y);
+        Vector2 dir = (target - (Vector2)transform.position).normalized;
+        rb.velocity = dir * infinitySpeed;
+    }
+
+    IEnumerator DashTowardsPlayer()
+    {
+        currentState = MovementState.Dashing;
+
+        GameObject joueur = GameObject.FindGameObjectWithTag("Player");
+        if (joueur != null)
+        {
+            Vector2 dir = (joueur.transform.position - transform.position).normalized;
+            rb.velocity = dir * dashSpeed;
+        }
+        else
+        {
+            currentState = MovementState.Returning; // Pas de joueur, retourne au centre
+        }
+
+        yield return null;
+    }
+
+    void ReturnToCenter()
+    {
+        Vector2 dir = (centerPoint.position - transform.position);
+        if (dir.magnitude < 0.1f)
+        {
+            currentState = MovementState.Infinity;
+            timeSinceStart = 0f;
+            rb.velocity = Vector2.zero;
+            return;
+        }
+        rb.velocity = dir.normalized * returnSpeed;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        GameObject joueur = GameObject.FindGameObjectWithTag("Player");
-
-        if (joueur != null)
+        if (currentState == MovementState.Dashing)
         {
-            direction = (joueur.transform.position - transform.position).normalized;
+            currentState = MovementState.Returning;
         }
-        else
-        {
-            float angle = Random.Range(-60f, 60f);
-            direction = Quaternion.Euler(0, 0, angle) * direction;
-        }
-
-        rb.velocity = direction * speed;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -215,7 +254,6 @@ public class Bouddha : MonoBehaviour
             yield return new WaitForSeconds(flashInterval / 2f);
             elapsed += flashInterval;
         }
-
         sr.color = originalColor;
     }
 
@@ -246,7 +284,6 @@ public class Bouddha : MonoBehaviour
             sr.color = Color.Lerp(startColor, endColor, elapsedTime / fadeDuration);
             yield return null;
         }
-
         Destroy(gameObject);
     }
 }

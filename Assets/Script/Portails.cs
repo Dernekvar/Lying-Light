@@ -52,5 +52,6 @@ public class Portails : MonoBehaviour
 
             yield return new WaitForSeconds(spawnInterval);
         }
+        Destroy(gameObject);
     }
 }

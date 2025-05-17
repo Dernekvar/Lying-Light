@@ -250,7 +250,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 77
   m_Sprite: {fileID: 21300000, guid: 1f55fb48f268cc14d93ac881d9c0be99, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -294,8 +294,8 @@ CapsuleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.671525, y: 0.10110617}
-  m_Size: {x: 2.6415062, y: 6.095538}
+  m_Offset: {x: 0.671525, y: -0.5773568}
+  m_Size: {x: 2.6415062, y: 7.452464}
   m_Direction: 0
 --- !u!50 &7774344083186393377
 Rigidbody2D:
@@ -337,9 +337,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxSpeed: 5
-  dashForce: 20
+  dashForce: 30
   dashDuration: 0.2
-  dashCooldown: 1
+  dashCooldown: 1.5
   inputActions: {fileID: -944628639613478452, guid: 44ee98a09e0d0e24faa8fde3ff6c938b, type: 3}
   isKnockedBack: 0
 --- !u!114 &3679160309874219686
@@ -354,12 +354,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3b578279e79b19429dd43920fff77dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  jumpHeight: 9.35
+  jumpHeight: 9.5
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
   _asset: {fileID: -944628639613478452, guid: 44ee98a09e0d0e24faa8fde3ff6c938b, type: 3}
   inputActions: {fileID: -944628639613478452, guid: 44ee98a09e0d0e24faa8fde3ff6c938b, type: 3}
+  normalGravity: 1
+  floatGravity: 0.3
+  fallSpeedLimit: 3
 --- !u!114 &5300795271873094415
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -374,8 +377,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   projectilePrefab: {fileID: 6964992351951411051, guid: 50db4ef5145b26c44b977a661dd07c1f, type: 3}
   attackSpawnPoint: {fileID: 3638889292211561045}
-  chargeTime: 2
-  targetScale: 2
+  chargeTime: 1
+  targetScale: 1.5
   projectileSpeed: 10
   damage: 1
   cooldownTime: 1.5
@@ -530,7 +533,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 4.09, y: 6.09}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1

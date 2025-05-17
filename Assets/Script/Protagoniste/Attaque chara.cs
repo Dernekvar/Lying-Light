@@ -53,18 +53,8 @@ public class AttaqueChara : MonoBehaviour
         }
     }
 
-    void Flip()
-    {
-        // Inversion de l'échelle du personnage
-        transform.localScale = new Vector3(-transform.localScale.x, transform.localScale.y, transform.localScale.z);
-
-        // Inversion de la direction de visée
-        aimDirection = -defaultAimDirection;
-    }
-
     void HandleAim()
     {
-        // Vérification pour éviter une NullReferenceException
         if (aimAction == null || attackSpawnPoint == null)
         {
             Debug.LogError("AimAction ou AttackSpawnPoint est null !");
@@ -73,7 +63,6 @@ public class AttaqueChara : MonoBehaviour
 
         aimDirection = aimAction.ReadValue<Vector2>();
 
-        // Si le joystick n'est pas utilisé, conserver la direction par défaut
         if (aimDirection.sqrMagnitude < 0.001f)
             aimDirection = defaultAimDirection;
 
@@ -84,7 +73,6 @@ public class AttaqueChara : MonoBehaviour
         float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
         attackSpawnPoint.rotation = Quaternion.Euler(0f, 0f, angle);
     }
-
 
     void HandleChargeAttack()
     {
@@ -130,6 +118,14 @@ public class AttaqueChara : MonoBehaviour
         currentAttackInstance = Instantiate(projectilePrefab, attackSpawnPoint.position, Quaternion.identity);
         currentAttackInstance.transform.localScale = Vector3.zero;
 
+        var projScript = currentAttackInstance.GetComponent<ComportementProjectile>();
+        if (projScript != null)
+        {
+            projScript.isCharging = true;
+            projScript.canDealDamage = false;
+            projScript.damage = damage;
+        }
+
         SetProjectileMaterial(chargingMaterial);
     }
 
@@ -157,6 +153,13 @@ public class AttaqueChara : MonoBehaviour
                 projRb.velocity = aimDirection * projectileSpeed;
             }
 
+            var projScript = currentAttackInstance.GetComponent<ComportementProjectile>();
+            if (projScript != null)
+            {
+                projScript.isCharging = false;
+                projScript.canDealDamage = true;
+            }
+
             currentAttackInstance.transform.parent = null;
             currentAttackInstance = null;
         }
@@ -180,15 +183,16 @@ public class AttaqueChara : MonoBehaviour
         StartCoroutine(CooldownCoroutine());
     }
 
+    public void CancelChargeByProjectile()
+    {
+        // Appelé par le projectile s’il touche quelque chose en charge
+        Debug.Log("Charge annulée car projectile a touché un obstacle.");
+        DisintegrateProjectile();
+    }
+
     private IEnumerator CooldownCoroutine()
     {
         yield return new WaitForSeconds(cooldownTime);
         isOnCooldown = false;
-    }
-
-    void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(transform.position, orbitRadius);
     }
 }

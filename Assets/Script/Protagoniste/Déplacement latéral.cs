@@ -82,7 +82,7 @@ public class PlayerMovement : MonoBehaviour
     {
         moveInput = ctx.ReadValue<float>();
 
-        if (moveInput != 0)
+        if (moveInput != 0 && !isDashing)
         {
             Flip();
         }
@@ -110,8 +110,13 @@ public class PlayerMovement : MonoBehaviour
         isDashing = true;
         lastDashTime = Time.time;
 
-        float dashDirection = moveInput != 0 ? Mathf.Sign(moveInput) : transform.localScale.x;
-        rb.velocity = new Vector2(dashDirection * dashForce, rb.velocity.y);
+        float dashDirection = transform.localScale.x >= 0 ? 1f : -1f;
+
+        // Option 1 : dash pur à l'horizontale, sans saut ni chute influents
+        rb.velocity = new Vector2(dashDirection * dashForce, 0f);
+
+        // Option 2 : garde la vitesse verticale (ex: pour dash en l'air)
+        // rb.velocity = new Vector2(dashDirection * dashForce, rb.velocity.y);
 
         yield return new WaitForSeconds(dashDuration);
 
