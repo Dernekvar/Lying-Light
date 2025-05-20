@@ -22,12 +22,12 @@ public class AttaqueChara : MonoBehaviour
     [Header("Orbit Settings")]
     public float orbitRadius = 1.5f;
 
+    public bool isCharging = false;
+    public bool canShoot = false;
     private GameObject currentAttackInstance;
-    private bool isCharging = false;
-    private bool canShoot = false;
-    private float currentChargeTime = 0f;
-    private bool isOnCooldown = false;
-    private bool materialChanged = false;
+    public float currentChargeTime = 0f;
+    public bool isOnCooldown = false;
+    public bool materialChanged = false;
 
     private Vector2 aimDirection = Vector2.right;
     private Vector2 defaultAimDirection = new Vector2(1, 0);
@@ -102,13 +102,22 @@ public class AttaqueChara : MonoBehaviour
         if (chargeAction.WasReleasedThisFrame() && isCharging)
         {
             if (canShoot)
+            {
                 LaunchProjectile();
+            }
             else
-                DisintegrateProjectile();
+            {
+                Destroy(currentAttackInstance);
+                isCharging = false;
+                canShoot = false;
+                isOnCooldown = true;
+                StartCoroutine(CooldownCoroutine());
+                currentChargeTime = 0f;
+            }
         }
     }
 
-    void StartCharging()
+        void StartCharging()
     {
         isCharging = true;
         canShoot = false;
@@ -117,14 +126,6 @@ public class AttaqueChara : MonoBehaviour
 
         currentAttackInstance = Instantiate(projectilePrefab, attackSpawnPoint.position, Quaternion.identity);
         currentAttackInstance.transform.localScale = Vector3.zero;
-
-        var projScript = currentAttackInstance.GetComponent<ComportementProjectile>();
-        if (projScript != null)
-        {
-            projScript.isCharging = true;
-            projScript.canDealDamage = false;
-            projScript.damage = damage;
-        }
 
         SetProjectileMaterial(chargingMaterial);
     }
@@ -153,13 +154,6 @@ public class AttaqueChara : MonoBehaviour
                 projRb.velocity = aimDirection * projectileSpeed;
             }
 
-            var projScript = currentAttackInstance.GetComponent<ComportementProjectile>();
-            if (projScript != null)
-            {
-                projScript.isCharging = false;
-                projScript.canDealDamage = true;
-            }
-
             currentAttackInstance.transform.parent = null;
             currentAttackInstance = null;
         }
@@ -168,27 +162,12 @@ public class AttaqueChara : MonoBehaviour
         currentChargeTime = 0f;
     }
 
-    void DisintegrateProjectile()
+    public void StartCooldown()
     {
-        isCharging = false;
-
-        if (currentAttackInstance != null)
-        {
-            Destroy(currentAttackInstance);
-            currentAttackInstance = null;
-        }
-
-        currentChargeTime = 0f;
         isOnCooldown = true;
         StartCoroutine(CooldownCoroutine());
     }
 
-    public void CancelChargeByProjectile()
-    {
-        // Appelé par le projectile s’il touche quelque chose en charge
-        Debug.Log("Charge annulée car projectile a touché un obstacle.");
-        DisintegrateProjectile();
-    }
 
     private IEnumerator CooldownCoroutine()
     {

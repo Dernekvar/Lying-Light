@@ -115,7 +115,6 @@ public class Enfant : MonoBehaviour
         if (collision.CompareTag("PlayerProjectile"))
         {
             TakeDamage(1); // Tu peux ajuster la valeur si tu veux que certains projectiles fassent plus de dégâts
-            Destroy(collision.gameObject); // On détruit le projectile après l’impact
         }
     }
 

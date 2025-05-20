@@ -180,7 +180,6 @@ public class Imam : MonoBehaviour
         if (collision.CompareTag("PlayerProjectile"))
         {
             TakeDamage(1);
-            Destroy(collision.gameObject);
         }
     }
 }

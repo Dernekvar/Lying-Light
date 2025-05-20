@@ -38,7 +38,6 @@ public class PlayerHealth : MonoBehaviour
         Debug.Log("Player took damage. HP: " + currentHealth);
         healthUI.UpdateHearts();
 
-        CancelChargingProjectiles();
 
         // Récupérer le point de collision à partir du collider
         Vector2 collisionPoint = playerCollider != null
@@ -88,17 +87,6 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-    void CancelChargingProjectiles()
-    {
-        ComportementProjectile[] projectiles = FindObjectsOfType<ComportementProjectile>();
-        foreach (var proj in projectiles)
-        {
-            if (proj.isCharging)
-            {
-                Destroy(proj.gameObject);
-            }
-        }
-    }
 
     void OnTriggerEnter2D(Collider2D collision)
     {

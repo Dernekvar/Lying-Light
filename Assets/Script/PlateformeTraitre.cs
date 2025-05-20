@@ -39,12 +39,26 @@ public class PlateformeTraitre : MonoBehaviour
     {
         yield return new WaitForSeconds(delayBeforeDisappear);
 
-        gameObject.SetActive(false); // Désactive complètement l'objet
+        sr.enabled = false;  // Masque visuellement la plateforme
+
+        // Désactive tous les colliders
+        Collider2D[] colliders = GetComponents<Collider2D>();
+        foreach (Collider2D c in colliders)
+        {
+            c.enabled = false;
+        }
 
         yield return new WaitForSeconds(reappearDelay);
 
-        gameObject.SetActive(true); // Réactive complètement l'objet
+        sr.enabled = true;  // Rétablit l'affichage
 
-        isTriggered = false; // Réactivation possible pour un autre passage
+        // Réactive tous les colliders
+        foreach (Collider2D c in colliders)
+        {
+            c.enabled = true;
+        }
+
+        isTriggered = false; // Permet un nouveau passage
     }
+
 }

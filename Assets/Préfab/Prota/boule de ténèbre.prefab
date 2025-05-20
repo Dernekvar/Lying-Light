@@ -4842,10 +4842,11 @@ GameObject:
   - component: {fileID: 4260306089056102103}
   - component: {fileID: 7723377708710768214}
   - component: {fileID: -6445104249014801561}
-  - component: {fileID: 7695201464586495857}
+  - component: {fileID: -6914103957769628350}
+  - component: {fileID: -7009700134131405020}
   m_Layer: 0
   m_Name: "boule de t\xE9n\xE8bre"
-  m_TagString: PlayerProjectile
+  m_TagString: Charge
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4980,7 +4981,7 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.50000006
---- !u!114 &7695201464586495857
+--- !u!114 &-6914103957769628350
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4989,8 +4990,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 6964992351951411051}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a18823daca62944ab4c59175df4ce2b, type: 3}
+  m_Script: {fileID: 11500000, guid: 1e8da3f6c36e0794e9d9aac5c2b034a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 1
-  isCharging: 1
+--- !u!114 &-7009700134131405020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6964992351951411051}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f28732006332d244782d8916734c4296, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

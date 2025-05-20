@@ -168,6 +168,7 @@ public class Bouddha : MonoBehaviour
                 ReturnToCenter();
                 break;
         }
+        Debug.Log(currentState);
     }
 
     void MoveInInfinity()
@@ -190,24 +191,26 @@ public class Bouddha : MonoBehaviour
             Vector2 dir = (joueur.transform.position - transform.position).normalized;
             rb.velocity = dir * dashSpeed;
         }
-        else
-        {
-            currentState = MovementState.Returning; // Pas de joueur, retourne au centre
-        }
 
-        yield return null;
+        // Au lieu d'attendre un retour automatique, l'état sera géré par OnCollisionEnter2D
+        yield return new WaitForSeconds(0.5f); // Petit délai pour éviter un changement immédiat et brusque
     }
 
     void ReturnToCenter()
     {
         Vector2 dir = (centerPoint.position - transform.position);
-        if (dir.magnitude < 0.1f)
+
+        // Vérifie si l'ennemi est suffisamment proche du centre
+        if (dir.magnitude < 1f)
         {
             currentState = MovementState.Infinity;
             timeSinceStart = 0f;
-            rb.velocity = Vector2.zero;
+            rb.velocity = Vector2.zero; // Arrête complètement l'ennemi avant de recommencer le mouvement infini
+            Debug.Log("Retour au centre terminé, passage à Infinity");
             return;
         }
+
+        // Applique la vitesse pour revenir au centre
         rb.velocity = dir.normalized * returnSpeed;
     }
 
@@ -216,6 +219,7 @@ public class Bouddha : MonoBehaviour
         if (currentState == MovementState.Dashing)
         {
             currentState = MovementState.Returning;
+            rb.velocity = Vector2.zero; // Arrête le mouvement après la collision
         }
     }
 
@@ -228,7 +232,6 @@ public class Bouddha : MonoBehaviour
         else if (collision.CompareTag("PlayerProjectile"))
         {
             TakeDamage(1);
-            Destroy(collision.gameObject);
         }
     }
 

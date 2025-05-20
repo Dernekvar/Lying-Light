@@ -210,4 +210,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   delayBeforeDisappear: 3
-  reappearDelay: 3
+  reappearDelay: 10
