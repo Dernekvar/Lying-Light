@@ -92,6 +92,6 @@ public class JumpCharacter : MonoBehaviour
 
     void Jump()
     {
-        rb.velocity = new Vector2(rb.velocity.x, jumpHeight);
+        rb.velocity = new Vector2(rb.velocity.x, jumpHeight * 1.5f); // Augmenter juste l'impulsion verticale
     }
 }

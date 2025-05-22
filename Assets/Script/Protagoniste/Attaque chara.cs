@@ -22,6 +22,10 @@ public class AttaqueChara : MonoBehaviour
     [Header("Orbit Settings")]
     public float orbitRadius = 1.5f;
 
+    [Header("Auto-Launch Settings")]
+    public float autoLaunchTime = 1f; // Temps en secondes avant le tir automatique une fois chargée
+    private float timeSinceReady = 0f;
+
     public bool isCharging = false;
     public bool canShoot = false;
     private GameObject currentAttackInstance;
@@ -99,6 +103,19 @@ public class AttaqueChara : MonoBehaviour
             }
         }
 
+        // Déclencher le tir automatique après x secondes une fois chargé
+        if (canShoot)
+        {
+            timeSinceReady += Time.deltaTime;
+            if (timeSinceReady >= autoLaunchTime)
+            {
+                LaunchProjectile();
+                timeSinceReady = 0f; // Reset le timer
+                StartCoroutine(CooldownCoroutine());
+                currentChargeTime = 0f;
+            }
+        }
+
         if (chargeAction.WasReleasedThisFrame() && isCharging)
         {
             if (canShoot)
@@ -117,7 +134,7 @@ public class AttaqueChara : MonoBehaviour
         }
     }
 
-        void StartCharging()
+    void StartCharging()
     {
         isCharging = true;
         canShoot = false;
