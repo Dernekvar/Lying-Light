@@ -89,7 +89,7 @@ public class AttaqueChara : MonoBehaviour
         {
             currentChargeTime += Time.deltaTime;
             float progress = Mathf.Clamp01(currentChargeTime / chargeTime);
-            float scaleValue = Mathf.Lerp(0f, targetScale, progress);
+            float scaleValue = Mathf.Lerp(0.3f, targetScale, progress);
             currentAttackInstance.transform.localScale = new Vector3(scaleValue, scaleValue, 1f);
 
             if (scaleValue >= targetScale)

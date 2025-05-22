@@ -21,6 +21,8 @@ public class PlayerMovement : MonoBehaviour
     private InputAction moveAction;
     private InputAction dashAction;
 
+    public Animator _anim;
+
     //  Nouveau flag ajouté pour laisser le knockback faire son effet
     [HideInInspector] public bool isKnockedBack = false;
 
@@ -55,6 +57,7 @@ public class PlayerMovement : MonoBehaviour
 
     void Start()
     {
+        _anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         rb.freezeRotation = true;
         originalScale = transform.localScale;
@@ -81,7 +84,7 @@ public class PlayerMovement : MonoBehaviour
     private void HandleMove(InputAction.CallbackContext ctx)
     {
         moveInput = ctx.ReadValue<float>();
-
+        _anim.SetTrigger("PlayerWalk");
         if (moveInput != 0 && !isDashing)
         {
             Flip();
