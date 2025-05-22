@@ -59,11 +59,9 @@ public class Enfant : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Player"))
-        {
+        
             direction *= -1; // Inverser la direction
             Flip(); // Appliquer l'effet visuel
-        }
     }
 
     public void Activer()
