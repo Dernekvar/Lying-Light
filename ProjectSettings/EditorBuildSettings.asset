@@ -9,10 +9,13 @@ EditorBuildSettings:
     path: Assets/Scenes/SampleScene.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
   - enabled: 0
-    path: Assets/PREMIERE VERSION CONTROL OK.unity
+    path: Assets/Scenes/PREMIERE VERSION CONTROL OK.unity
     guid: ac5e02a56d7418b4f896ff2d930cee8c
   - enabled: 1
-    path: Assets/Lying LD.unity
+    path: Assets/Scenes/Lying LD.unity
     guid: 22fd6307689aac54384715434e6994be
+  - enabled: 1
+    path: Assets/Scenes/Menu.unity
+    guid: 24b4726aa47f250499baec601493bcef
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: f9fef16d39b00e543902f389ea5f979d, type: 2}

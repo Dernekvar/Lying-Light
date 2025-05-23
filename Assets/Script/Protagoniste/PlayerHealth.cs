@@ -92,13 +92,18 @@ public class PlayerHealth : MonoBehaviour
     {
         Debug.Log("Collision détectée avec : " + collision.gameObject.name);
 
+        if (collision.CompareTag("Checkpoint"))
+        {
+            playerSpawnPoint = collision.transform; // Met à jour le point de spawn
+            Debug.Log("Nouveau point de spawn défini : " + playerSpawnPoint.position);
+        }
+
         if (collision.CompareTag("Enemy"))
         {
             Debug.Log("Dégâts infligés : " + damageOnCollision);
             TakeDamage(damageOnCollision, collision.transform.position);
         }
     }
-
     private IEnumerator Invincibility()
     {
         isInvincible = true;
